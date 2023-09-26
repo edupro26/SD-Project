@@ -26,10 +26,6 @@ int entry_destroy(struct entry_t *entry) {
     return 0;
 }
 
-/* Função que duplica uma entry, reservando a memória necessária para a
- * nova estrutura.
- * Retorna a nova entry ou NULL em caso de erro.
- */
 struct entry_t *entry_dup(struct entry_t *entry) {
     if (entry == NULL) {
         return NULL;
@@ -46,3 +42,24 @@ struct entry_t *entry_dup(struct entry_t *entry) {
     return new_entry;
 }
 
+int entry_replace(struct entry_t *entry, char *new_key, struct data_t *new_value) {
+    if (entry == NULL || new_key == NULL || new_value == NULL) {
+        return -1;
+    }
+
+    free(entry->key);
+    data_destroy(entry->value);
+
+    entry->key = new_key;
+    entry->value = new_value;
+
+    return 0;
+}
+
+int entry_compare(struct entry_t *entry1, struct entry_t *entry2) {
+    if (entry1 == NULL || entry2 == NULL) {
+        return -2;
+    }
+
+    return strcmp(entry1->key, entry2->key);
+}
