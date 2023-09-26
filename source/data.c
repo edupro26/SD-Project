@@ -1,7 +1,18 @@
+/* 
+
+Sistemas Distribuidos - Projeto Fase 1 
+Grupo 8
+Alexandre Pinto - 55958
+Eduardo Proença  - 57551
+Tiago Oliveira - 54979
+
+*/
+
 #include <stdlib.h>
-#include <data.h>
+#include <stdio.h>
 #include <string.h>
 
+#include "data.h"
 
 struct data_t *data_create(int size, void *data) {
     struct data_t *new_data = (struct data_t *) malloc(sizeof(struct data_t));
