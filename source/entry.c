@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include "entry.h"
 
 
@@ -17,17 +18,17 @@ struct entry_t *entry_create(char *key, struct data_t *data) {
 }
 
 int entry_destroy(struct entry_t *entry) {
-    if (entry == NULL) {
+    if (entry == NULL || entry->key == NULL || entry->value == NULL) {
         return -1;
     }
-    free(entry->key);
+    free(entry->key); // Possible memory leak
     data_destroy(entry->value);
     free(entry);
     return 0;
 }
 
 struct entry_t *entry_dup(struct entry_t *entry) {
-    if (entry == NULL) {
+    if (entry == NULL || entry->key == NULL || entry->value == NULL) {
         return NULL;
     }
 
