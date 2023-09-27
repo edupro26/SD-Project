@@ -1,46 +1,58 @@
+/* 
+
+Sistemas Distribuidos - Projeto Fase 1 
+Grupo 8
+Alexandre Pinto - 55958
+Eduardo Proença  - 57551
+Tiago Oliveira - 54979
+
+*/
+
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
+
 #include "entry.h"
 
-
 struct entry_t *entry_create(char *key, struct data_t *data) {
-    if (key == NULL || data == NULL) {
-        return NULL;
-    }
+    struct entry_t *ptr;
+    if (key == NULL || data == NULL) return NULL;
 
-    // Allocs the memory for the new entry
-    struct entry_t *new_entry = malloc(sizeof(struct entry_t));
+    ptr = (struct entry_t *) malloc(sizeof(struct entry_t));
+    if(ptr == NULL) return NULL;
+    
+    ptr->key = key;
+    ptr->value = data;
 
-    new_entry->key = key;
-    new_entry->value = data;
-
-    return new_entry;
+    return ptr;
 }
 
 int entry_destroy(struct entry_t *entry) {
-    if (entry == NULL || entry->key == NULL || entry->value == NULL) {
-        return -1;
+    if(entry != NULL){
+        if(entry->key == NULL || entry->value == NULL)
+            return -1;
+
+        data_destroy(entry->value);
+        free(entry->key);
+
+        free(entry);
+        return 0;
     }
-    free(entry->key); // Possible memory leak
-    data_destroy(entry->value);
-    free(entry);
-    return 0;
+    
+    return -1;
 }
 
 struct entry_t *entry_dup(struct entry_t *entry) {
-    if (entry == NULL || entry->key == NULL || entry->value == NULL) {
+    struct entry_t *ptr;
+    if(entry == NULL) return NULL;
+
+    if(entry->key == NULL || entry->value == NULL)
         return NULL;
-    }
 
-    struct entry_t *new_entry = malloc(sizeof(struct entry_t));
-    if (new_entry == NULL) {
-        return NULL;
-    }
+    ptr = entry_create(entry->key, entry->value);
+    if(ptr == NULL) return NULL;
 
-    new_entry->key = entry->key;
-    new_entry->value = data_dup(entry->value);
-
-    return new_entry;
+    return ptr;
 }
 
 int entry_replace(struct entry_t *entry, char *new_key, struct data_t *new_value) {
