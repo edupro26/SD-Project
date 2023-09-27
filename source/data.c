@@ -15,10 +15,16 @@ Tiago Oliveira - 54979
 #include "data.h"
 
 struct data_t *data_create(int size, void *data) {
-    struct data_t *new_data = (struct data_t *) malloc(sizeof(struct data_t));
-    if (new_data == NULL) {
+    if (data == NULL || size <= 0) {
         return NULL;
     }
+
+    struct data_t *new_data = (struct data_t *) malloc(sizeof(struct data_t));
+
+    if ( new_data == NULL) {
+        return NULL;
+    }
+    
     new_data->datasize = size;
     new_data->data = data;
     return new_data;
@@ -36,7 +42,7 @@ int data_destroy(struct data_t *data) {
 
 
 struct data_t *data_dup(struct data_t *data) {
-    if (data == NULL || data->data == NULL) {
+    if (data == NULL || data->data == NULL || data->datasize <= 0) {
         return NULL;
     }
 
@@ -61,7 +67,7 @@ struct data_t *data_dup(struct data_t *data) {
 
 
 int data_replace(struct data_t *data, int new_size, void *new_data) {
-    if (data == NULL || new_data == NULL) {
+    if (data == NULL || new_data == NULL || new_size <= 0 || data->datasize <= 0) {
         return -1;
     }
     // Frees the memory of the old data
