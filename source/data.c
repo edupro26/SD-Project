@@ -29,8 +29,8 @@ struct data_t *data_create(int size, void *data) {
 
 int data_destroy(struct data_t *data) {
     if (data != NULL){
-        if(data->data)
-            free(data->data);
+        if(data->data != NULL) //Possible error in
+            free(data->data);   // this code
     }
     else{
         return -1;
