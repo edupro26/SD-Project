@@ -14,11 +14,10 @@ Tiago Oliveira - 54979
 
 #include "entry.h"
 
-struct entry_t *entry_create(char *key, struct data_t *data) {
-    struct entry_t *ptr;
+struct entry_t *entry_create(char *key, struct data_t *data) {   
     if (key == NULL || data == NULL) return NULL;
 
-    ptr = (struct entry_t *) malloc(sizeof(struct entry_t));
+    struct entry_t *ptr = (struct entry_t *) malloc(sizeof(struct entry_t));
     if(ptr == NULL) return NULL;
     
     ptr->key = key;
@@ -28,28 +27,26 @@ struct entry_t *entry_create(char *key, struct data_t *data) {
 }
 
 int entry_destroy(struct entry_t *entry) {
-    if(entry != NULL){
-        if(entry->key == NULL || entry->value == NULL)
-            return -1;
+    if(entry == NULL) return -1;
+    if (entry->key == NULL || entry->value == NULL) return -1;
 
-        data_destroy(entry->value);
-        free(entry->key);
-
-        free(entry);
-        return 0;
-    }
+    free(entry->key); // Free the key string
+  
+    data_destroy(entry->value); // Free the data using data_destroy from data.h
     
-    return -1;
+    free(entry);
+
+    return 0;
+    
 }
 
 struct entry_t *entry_dup(struct entry_t *entry) {
-    struct entry_t *ptr;
     if(entry == NULL) return NULL;
 
     if(entry->key == NULL || entry->value == NULL)
         return NULL;
 
-    ptr = entry_create(entry->key, entry->value);
+    struct entry_t *ptr = entry_create(strdup(entry->key), data_dup(entry->value));
     if(ptr == NULL) return NULL;
 
     return ptr;
@@ -60,9 +57,12 @@ int entry_replace(struct entry_t *entry, char *new_key, struct data_t *new_value
         return -1;
     }
 
-    free(entry->key);
-    data_destroy(entry->value);
+    if (entry->key == NULL || entry->value == NULL) return -1;
 
+    free(entry->key); // Free the key string
+  
+    data_destroy(entry->value); // Free the data using data_destroy from data.h
+ 
     entry->key = new_key;
     entry->value = new_value;
 
