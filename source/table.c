@@ -163,3 +163,16 @@ char **table_get_keys(struct table_t *table) {
     keys[index]= NULL;
     return keys;
 }
+
+int table_free_keys(char **keys) {
+    if (keys == NULL) {
+        return -1;
+    }
+
+    for (int i = 0;keys[i] != NULL; i++) {
+        free(keys[i]);
+    }
+    free(keys);
+
+    return 0;
+}
