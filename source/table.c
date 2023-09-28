@@ -69,3 +69,24 @@ int table_put(struct table_t *table, char *key, struct data_t *value) {
 
     return result;
 }
+
+struct data_t *table_get(struct table_t *table, char *key) {
+    if (table == NULL || key == NULL) {
+        return NULL;
+    }
+
+    int index = hash_code(key, table->size);
+    struct list_t *list = table->lists[index];
+
+    if (list == NULL) {
+        return NULL;
+    }
+
+    struct entry_t *entry = list_get(list, key);
+
+    if (entry == NULL) {
+        return NULL;
+    }
+
+    return data_dup(entry->value);
+}
