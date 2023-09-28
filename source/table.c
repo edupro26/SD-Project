@@ -112,3 +112,21 @@ int table_remove(struct table_t *table, char *key) {
         return 1;
     }
 }
+
+int table_size(struct table_t *table) {
+    if (table == NULL) {
+        return -1;
+    }
+
+    int tab_size = 0;
+    
+    for (int i = 0; i < table->size; i++) {
+        struct list_t *list = table->lists[i];
+
+        // Counts every entry on a list
+        if (list != NULL) {
+            tab_size += list_size(list);
+        }
+    }
+    return tab_size;
+}
