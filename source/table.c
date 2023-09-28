@@ -46,3 +46,26 @@ int table_destroy(struct table_t *table) {
     free(table);
     return 0;
 }
+
+int table_put(struct table_t *table, char *key, struct data_t *value) {
+    if(table == NULL || key == NULL || value == NULL) {
+        return -1;
+    }
+
+    int index = hash_code(key, table->size);
+
+    struct entry_t *entry = entry_create(strdup(key), data_dup(value));
+
+    if (entry == NULL) {
+        return -1;
+    }
+
+    int result = list_add(table->lists[index], entry);
+
+    // If the adding of entry doesn't go as expected, the entry is destroyed
+    if (result == -1) {
+        entry_destroy(entry);
+    }
+
+    return result;
+}
