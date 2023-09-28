@@ -1,36 +1,50 @@
+/* 
+
+Sistemas Distribuidos - Projeto Fase 1 
+Grupo 8
+Alexandre Pinto - 55958
+Eduardo Proença  - 57551
+Tiago Oliveira - 54979
+
+*/
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+
 #include "list-private.h"
 
 struct list_t *list_create() {
-    struct list_t *new_list = malloc(sizeof(struct list_t));
+    struct list_t *list = (struct list_t *) malloc(sizeof(struct list_t));
+    
+    if (list == NULL) return NULL;
 
-    if (new_list == NULL) {
-        return NULL;
-    }
     // List starts empty
-    new_list->size = 0;
-    new_list->head = NULL;
+    list->size = 0;
+    list->head = NULL;
 
-    return new_list;
+    return list;
 }
 
 int list_destroy(struct list_t *list) {
-    if (list == NULL) {
-        return -1;
-    }
+    if (list == NULL) return -1;
 
     struct node_t *current = list->head;
-    struct node_t *next;
+    struct node_t *temp;
 
-    while (current != NULL) {
-        next = current->next;
-        //free(current);
-        current = next;
+    if(list->size > 0){
+        while(current->next != NULL){
+            temp = current->next;
+            entry_destroy(current->entry);
+            free(current);
+            current = temp;
+            list->size--;
+        }
+        entry_destroy(current->entry);
+        free(current);
     }
-
     free(list);
+
     return 0;
 }
 
