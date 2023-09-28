@@ -31,3 +31,18 @@ struct table_t *table_create(int n) {
     }
     return new_table;
 }
+
+int table_destroy(struct table_t *table) {
+    if (table == NULL) {
+        return -1;
+    }
+
+    // frees each list
+    for (int i = 0; i < table->size; i++) {
+        list_derstroy(table->lists[i]);
+    }
+    // frees the array of lists
+    free(table->lists);
+    free(table);
+    return 0;
+}
