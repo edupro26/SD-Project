@@ -100,21 +100,16 @@ int table_remove(struct table_t *table, char *key) {
         return -1;
     }
 
+    
     int index = hash_code(key, table->size);
     struct list_t *list = table->lists[index];
 
     if (list == NULL) {
-        return 1;
+        return -1;
     }
+    
 
-    struct entry_t *removed_entry = list_remove(list, key);
-
-    if (removed_entry != NULL) {
-        entry_destroy(removed_entry);
-        return 0;
-    } else {
-        return 1;
-    }
+    return list_remove(list, key);
 }
 
 int table_size(struct table_t *table) {
