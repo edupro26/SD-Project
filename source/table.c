@@ -39,7 +39,7 @@ int table_destroy(struct table_t *table) {
 
     // frees each list
     for (int i = 0; i < table->size; i++) {
-        list_derstroy(table->lists[i]);
+        list_destroy(table->lists[i]);
     }
     // frees the array of lists
     free(table->lists);
