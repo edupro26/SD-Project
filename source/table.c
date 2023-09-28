@@ -105,10 +105,9 @@ int table_remove(struct table_t *table, char *key) {
     struct list_t *list = table->lists[index];
 
     if (list == NULL) {
-        return -1;
+        return 1;
     }
     
-
     return list_remove(list, key);
 }
 
