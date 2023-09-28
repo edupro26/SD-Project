@@ -90,3 +90,25 @@ struct data_t *table_get(struct table_t *table, char *key) {
 
     return data_dup(entry->value);
 }
+
+int table_remove(struct table_t *table, char *key) {
+    if (table == NULL || key == NULL) {
+        return -1;
+    }
+
+    int index = hash_code(key, table->size);
+    struct list_t *list = table->lists[index];
+
+    if (list == NULL) {
+        return 1;
+    }
+
+    struct entry_t *removed_entry = list_remove(list, key);
+
+    if (removed_entry != NULL) {
+        entry_destroy(removed_entry);
+        return 0;
+    } else {
+        return 1;
+    }
+}
