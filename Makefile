@@ -36,9 +36,6 @@ $(BIN_DIR)/test_serialization: $(TEST_SERIALIZATION_OBJ)
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -o $@ -c $<
 
-$(OBJ_DIR)/table-private.o: $(SRC_DIR)/table-private.c
-	$(CC) $(CFLAGS) -o $@ -c $<
-
 clean:
 	rm -rf $(OBJ_DIR)/* $(BIN_DIR)/*
 
