@@ -130,3 +130,36 @@ int table_size(struct table_t *table) {
     }
     return tab_size;
 }
+
+char **table_get_keys(struct table_t *table) {
+    if (table == NULL) {
+        return NULL;
+    }
+
+    char **keys = malloc((table_size(table) + 1) * sizeof(char *));
+    if (keys == NULL) {
+        return NULL;
+    }
+
+    int index = 0;
+
+    for (int i = 0; i < table->size; i++) {
+        struct list_t *list = table->lists[i];
+
+        // In each valid list, gets the keys
+        if (list != NULL) {
+            char **list_keys = list_get_keys(list);
+            int list_keys_size = list_size(list);
+
+            if (list_keys != NULL) {
+                for (int j = 0; j < list_size; j++) {
+                    keys[index++] = list_keys[j];
+                }
+                free(list_keys);
+            }
+        }
+    }
+    // The last element of the array must be null
+    keys[index]= NULL;
+    return keys;
+}
