@@ -15,10 +15,9 @@ Tiago Oliveira - 54979
 #include "data.h"
 
 struct data_t *data_create(int size, void *data) {
-    struct data_t *ptr;
     if (data == NULL || size <= 0) return NULL;
 
-    ptr = (struct data_t *) malloc(sizeof(struct data_t));
+    struct data_t *ptr = (struct data_t *) malloc(sizeof(struct data_t));
     if (ptr == NULL) return NULL;
     
     ptr->datasize = size;
@@ -41,11 +40,10 @@ int data_destroy(struct data_t *data) {
 }
 
 struct data_t *data_dup(struct data_t *data) {
-    struct data_t *ptr;
     if (data == NULL || data->datasize <= 0 || data->data == NULL) 
         return NULL;
 
-    ptr = (struct data_t *) malloc(sizeof(struct data_t));
+    struct data_t *ptr = (struct data_t *) malloc(sizeof(struct data_t));
     if (ptr == NULL) return NULL;
 
     ptr->datasize = data->datasize;
