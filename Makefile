@@ -6,12 +6,12 @@ SRC_DIR = source
 CC = gcc
 CFLAGS = -g -lrt -Wall -Wextra -I $(INC_DIR)
 
-EXECS = $(BIN_DIR)/test_data $(BIN_DIR)/test_entry $(BIN_DIR)/test_list #$(BIN_DIR)/test_table $(BIN_DIR)/test_serialization
+EXECS = $(BIN_DIR)/test_data $(BIN_DIR)/test_entry $(BIN_DIR)/test_list $(BIN_DIR)/test_table #$(BIN_DIR)/test_serialization
 
 TEST_DATA_OBJ = $(OBJ_DIR)/test_data.o $(OBJ_DIR)/data.o
 TEST_ENTRY_OBJ = $(OBJ_DIR)/test_entry.o $(OBJ_DIR)/entry.o $(OBJ_DIR)/data.o
 TEST_LIST_OBJ = $(OBJ_DIR)/test_list.o $(OBJ_DIR)/list.o $(OBJ_DIR)/data.o $(OBJ_DIR)/entry.o
-#TEST_TABLE_OBJ = TODO
+TEST_TABLE_OBJ = $(OBJ_DIR)/test_table.o $(OBJ_DIR)/table.o $(OBJ_DIR)/data.o $(OBJ_DIR)/entry.o $(OBJ_DIR)/list.o
 #TEST_SERIALIZATION_OBJ = TODO
 
 all: $(EXECS)
@@ -34,6 +34,9 @@ $(BIN_DIR)/test_serialization: $(TEST_SERIALIZATION_OBJ)
 	@echo Build complete.
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+	$(CC) $(CFLAGS) -o $@ -c $<
+
+$(OBJ_DIR)/table-private.o: $(SRC_DIR)/table-private.c
 	$(CC) $(CFLAGS) -o $@ -c $<
 
 clean:
