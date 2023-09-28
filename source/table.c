@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include "table-private.h"
+#include "table-private.c"
 #include "table.h"
 #include "data.h"
 #include "list.h"
