@@ -1,5 +1,8 @@
 #include <stdlib.h>
 #include "table-private.h"
+#include "data.h"
+#include "list.h"
+#include <string.h>
 
 struct table_t *table_create(int n) {
     if (n <= 0) {
@@ -152,7 +155,7 @@ char **table_get_keys(struct table_t *table) {
             int list_keys_size = list_size(list);
 
             if (list_keys != NULL) {
-                for (int j = 0; j < list_size; j++) {
+                for (int j = 0; j < list_keys_size; j++) {
                     keys[index++] = list_keys[j];
                 }
                 free(list_keys);
