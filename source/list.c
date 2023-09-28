@@ -80,7 +80,9 @@ int list_add(struct list_t *list, struct entry_t *entry) {
             new_node->next = current->next;
             entry_destroy(current->entry);
             //free(current);
-            current = new_node;
+            //current = new_node;
+            current->entry = entry;
+            current->next = new_node->next;
             return 1;
         }
 
