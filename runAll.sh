@@ -17,4 +17,7 @@ do
 
     echo "\nTesting table:"
     ./binary/test_table
+
+    echo "\nTesting serialization:"
+    ./binary/test_serialization
 done
