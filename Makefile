@@ -12,7 +12,7 @@ TEST_DATA_OBJ = $(OBJ_DIR)/test_data.o $(OBJ_DIR)/data.o
 TEST_ENTRY_OBJ = $(OBJ_DIR)/test_entry.o $(OBJ_DIR)/entry.o $(OBJ_DIR)/data.o
 TEST_LIST_OBJ = $(OBJ_DIR)/test_list.o $(OBJ_DIR)/list.o $(OBJ_DIR)/data.o $(OBJ_DIR)/entry.o
 TEST_TABLE_OBJ = $(OBJ_DIR)/test_table.o $(OBJ_DIR)/table.o $(OBJ_DIR)/data.o $(OBJ_DIR)/entry.o $(OBJ_DIR)/list.o
-TEST_SERIALIZATION_OBJ = $(OBJ_DIR)/test_serialization.o $(OBJ_DIR)/test_serialization.o $(OBJ_DIR)/data.o $(OBJ_DIR)/entry.o $(OBJ_DIR)/list.o
+TEST_SERIALIZATION_OBJ = $(OBJ_DIR)/test_serialization.o $(OBJ_DIR)/serialization.o $(OBJ_DIR)/data.o $(OBJ_DIR)/entry.o $(OBJ_DIR)/list.o
 
 all: $(EXECS)
 
