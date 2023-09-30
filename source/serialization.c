@@ -22,7 +22,7 @@ int keyArray_to_buffer(char **keys, char **keys_buf) {
     }
 
     size += sizeof(int);
-    *keys_buf = (char *) malloc(sizeof(size));
+    *keys_buf = (char *) malloc(size);
 
     if (*keys_buf == NULL) {
         return -1;
