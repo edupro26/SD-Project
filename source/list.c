@@ -53,7 +53,7 @@ int list_add(struct list_t *list, struct entry_t *entry) {
         return -1;
     }
 
-    struct node_t *new_node = malloc(sizeof(struct node_t));
+    struct node_t *new_node = (struct node_t *) malloc(sizeof(struct node_t));
     if (new_node == NULL) {
         return -1;
     }
@@ -93,10 +93,9 @@ int list_add(struct list_t *list, struct entry_t *entry) {
         if (compare == 0) {
             new_node->next = current->next;
             entry_destroy(current->entry);
-            //free(current);
-            //current = new_node;
             current->entry = entry;
             current->next = new_node->next;
+            free(new_node);
             return 1;
         }
 
