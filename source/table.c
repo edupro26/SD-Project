@@ -1,9 +1,20 @@
 #include <stdlib.h>
-#include "table-private.c"
+#include <string.h>
+
+#include "table-private.h"
 #include "table.h"
 #include "data.h"
 #include "list.h"
-#include <string.h>
+
+int hash_code(char *key, int n) {
+    int count = 0;
+    
+    for (int i = 0; key[i] != '\0'; i++) {
+        count += key[i];
+    }
+
+    return count % n;
+}
 
 struct table_t *table_create(int n) {
     if (n <= 0) {
