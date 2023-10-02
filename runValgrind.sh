@@ -1,7 +1,5 @@
 # Run Valgrind for all test executables
 
-for file in ./binary/*
-do
     echo "\nRunning Valgrind..."
 
     echo "\nTesting data:"
@@ -18,5 +16,4 @@ do
 
     echo "\nTesting serialization:"
     valgrind --leak-check=yes ./binary/test_serialization
-done
 

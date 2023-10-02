@@ -2,8 +2,6 @@
 # Usage: ./runAll.sh
 
 # Run all test files
-for file in ./binary/*
-do
     echo "\nRunning tests..."
 
     echo "\nTesting data:"
@@ -20,4 +18,3 @@ do
 
     echo "\nTesting serialization:"
     ./binary/test_serialization
-done
