@@ -17,7 +17,7 @@ Tiago Oliveira - 54979
 struct list_t *list_create() {
     struct list_t *list = (struct list_t *) malloc(sizeof(struct list_t));
     
-    if (list == NULL) return NULL;
+    if (list == NULL) return NULL; // Return null if malloc fails
 
     // List starts empty
     list->size = 0;
@@ -27,11 +27,12 @@ struct list_t *list_create() {
 }
 
 int list_destroy(struct list_t *list) {
-    if (list == NULL) return -1;
+    if (list == NULL) return -1; // Return -1 if list is null
 
     struct node_t *current = list->head;
     struct node_t *temp;
 
+    // Free all nodes
     if(list->size > 0){
         while(current->next != NULL){
             temp = current->next;
@@ -49,14 +50,10 @@ int list_destroy(struct list_t *list) {
 }
 
 int list_add(struct list_t *list, struct entry_t *entry) {
-    if (list == NULL || entry == NULL) {
-        return -1;
-    }
+    if (list == NULL || entry == NULL) return -1; // Return -1 if list or entry is null
 
     struct node_t *new_node = (struct node_t *) malloc(sizeof(struct node_t));
-    if (new_node == NULL) {
-        return -1;
-    }
+    if (new_node == NULL) return -1; // Return -1 if malloc fails
 
     new_node->entry = entry;
     new_node->next = NULL;
@@ -111,9 +108,7 @@ int list_add(struct list_t *list, struct entry_t *entry) {
 }
 
 int list_remove(struct list_t *list, char *key) {
-    if (list == NULL || key == NULL) {
-        return -1;
-    }
+    if (list == NULL || key == NULL) return -1; // Return -1 if list or key is null
 
     struct node_t *current = list->head;
     struct node_t *previous = NULL;
@@ -140,12 +135,11 @@ int list_remove(struct list_t *list, char *key) {
 
 
 struct entry_t *list_get(struct list_t *list, char *key) {
-    if (list == NULL || key == NULL) {
-        return NULL;
-    }
+    if (list == NULL || key == NULL) return NULL; // Return null if list or key is null
 
     struct node_t *current = list->head;
     
+    // Loop through list until key is found
     while (current != NULL) {
         if (strcmp(current->entry->key, key) == 0) {
             return current->entry;
@@ -157,26 +151,21 @@ struct entry_t *list_get(struct list_t *list, char *key) {
 }
 
 int list_size(struct list_t *list) {
-    if (list == NULL) {
-        return -1;
-    }
+    if (list == NULL) return -1; // Return -1 if list is null
 
     return list->size;
 }
 
 char **list_get_keys(struct list_t *list) {
-    if (list == NULL || list->size == 0) {
-        return NULL;
-    }
+    if (list == NULL || list->size == 0) return NULL; // Return null if list is null or empty
 
     char **keys = malloc((list->size + 1) * sizeof(char *));
-    if (keys == NULL) {
-        return NULL;
-    }
+    if (keys == NULL) return NULL; // Return null if malloc fails
 
     struct node_t *current = list->head;
     int i = 0;
 
+    // Loop through list and add keys to array
     while (current != NULL) {
         keys[i] = strdup(current->entry->key);
         current = current->next;
@@ -188,11 +177,11 @@ char **list_get_keys(struct list_t *list) {
 }
 
 int list_free_keys(char **keys) {
-    if (keys == NULL) {
-        return -1;
-    }
+    if (keys == NULL) return -1; // Return -1 if keys is null
 
     int i = 0;
+
+    // Free all keys
     while (keys[i] != NULL) {
         free(keys[i]);
         i++;
