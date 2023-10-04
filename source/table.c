@@ -1,3 +1,13 @@
+/* 
+
+Sistemas Distribuidos - Projeto Fase 1 
+Grupo 8
+Alexandre Pinto - 55958
+Eduardo Proença  - 57551
+Tiago Oliveira - 54979
+
+*/
+
 #include <stdlib.h>
 #include <string.h>
 
