@@ -58,4 +58,14 @@ dkms.conf
 .vscode/
 
 # executables
-binary/
+binary/**
+
+# Allow executable files provided
+!binary/table_client
+!binary/table_server
+
+# Allow object files provided
+!objects/data.o
+!objects/entry.o
+!objects/list.o
+!objects/table.o
