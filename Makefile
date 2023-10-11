@@ -2,19 +2,25 @@ BIN_DIR = binary
 INC_DIR = include
 OBJ_DIR = objects
 SRC_DIR = source
+LIB_DIR = lib
 
 CC = gcc
 CFLAGS = -g -lrt -Wall -Wextra -I $(INC_DIR)
 
-EXECS = $(BIN_DIR)/test_data $(BIN_DIR)/test_entry $(BIN_DIR)/test_list $(BIN_DIR)/test_table $(BIN_DIR)/test_serialization
+EXECS = $(BIN_DIR)/table_server $(BIN_DIR)/table_client
 
-TEST_DATA_OBJ = $(OBJ_DIR)/test_data.o $(OBJ_DIR)/data.o
-TEST_ENTRY_OBJ = $(OBJ_DIR)/test_entry.o $(OBJ_DIR)/entry.o $(OBJ_DIR)/data.o
-TEST_LIST_OBJ = $(OBJ_DIR)/test_list.o $(OBJ_DIR)/list.o $(OBJ_DIR)/data.o $(OBJ_DIR)/entry.o
-TEST_TABLE_OBJ = $(OBJ_DIR)/test_table.o $(OBJ_DIR)/table.o $(OBJ_DIR)/data.o $(OBJ_DIR)/entry.o $(OBJ_DIR)/list.o
-TEST_SERIALIZATION_OBJ = $(OBJ_DIR)/test_serialization.o $(OBJ_DIR)/serialization.o $(OBJ_DIR)/data.o $(OBJ_DIR)/entry.o $(OBJ_DIR)/list.o
+TABLE_CLIENT = $(OBJ_DIR)/network_client.h $(OBJ_DIR)/client_stub.h $(OBJ_DIR)/client_stub-private.h $(LIB_DIR)/libtable.a
 
 all: $(EXECS)
+
+libtable: $(OBJ_DIR)/table.o $(OBJ_DIR)/data.o $(OBJ_DIR)/entry.o $(OBJ_DIR)/list.o
+	ar rcs $(LIB_DIR)/libtable.a $^
+
+table_client: 
+
+table_server:
+
+
 
 $(BIN_DIR)/test_data: $(TEST_DATA_OBJ)
 	$(CC) $^ -o $@
