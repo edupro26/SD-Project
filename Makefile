@@ -7,42 +7,34 @@ LIB_DIR = lib
 CC = gcc
 CFLAGS = -g -lrt -Wall -Wextra -I $(INC_DIR)
 
-EXECS = $(BIN_DIR)/table_server $(BIN_DIR)/table_client
+EXECS = libtable $(BIN_DIR)/table_server $(BIN_DIR)/table_client
 
-TABLE_CLIENT = $(OBJ_DIR)/network_client.h $(OBJ_DIR)/client_stub.h $(OBJ_DIR)/client_stub-private.h $(LIB_DIR)/libtable.a
+TABLE_CLIENT = $(OBJ_DIR)/table_client.o $(OBJ_DIR)/client_stub.o
+TABLE_SERVER = $(OBJ_DIR)/table_server.o $(OBJ_DIR)/network_server.o $(OBJ_DIR)/table_skel.o
+
+
+OBJ_TO_DEL = $(OBJ_DIR)/network_client.o $(OBJ_DIR)/client_stub.o $(OBJ_DIR)/client_stub-private.o $(OBJ_DIR)/network_server.o $(OBJ_DIR)/table_skel.o $(OBJ_DIR)/table_skel-private.o
 
 all: $(EXECS)
 
 libtable: $(OBJ_DIR)/table.o $(OBJ_DIR)/data.o $(OBJ_DIR)/entry.o $(OBJ_DIR)/list.o
 	ar rcs $(LIB_DIR)/libtable.a $^
 
-table_client: 
+table-client: $(BIN_DIR)/table_client
 
-table_server:
+table-server: $(BIN_DIR)/table_server
 
-
-
-$(BIN_DIR)/test_data: $(TEST_DATA_OBJ)
+$(BIN_DIR)/table_client: $(TABLE_CLIENT)
 	$(CC) $^ -o $@
 
-$(BIN_DIR)/test_entry: $(TEST_ENTRY_OBJ)
+$(BIN_DIR)/table_server: $(TABLE_SERVER)
 	$(CC) $^ -o $@
 
-$(BIN_DIR)/test_list: $(TEST_LIST_OBJ)
-	$(CC) $^ -o $@
-
-$(BIN_DIR)/test_table: $(TEST_TABLE_OBJ)
-	$(CC) $^ -o $@
-
-$(BIN_DIR)/test_serialization: $(TEST_SERIALIZATION_OBJ)
-	$(CC) $^ -o $@
-
-	@echo Build complete.
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -o $@ -c $<
 
 clean:
-	rm -rf $(OBJ_DIR)/* $(BIN_DIR)/*
+	rm -f $(EXECS) $(OBJ_TO_DEL) $(LIB_DIR)/libtable.a
 
 .PHONY: all clean
