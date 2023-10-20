@@ -9,11 +9,13 @@ O diretório do projeto é consituído pelos seguintes subdiretórios:
 - `source` - contém os ficheiros fonte do projeto
 - `include` - contém os ficheiros de cabeçalho do projeto
 - `objects` - contém os ficheiros objeto do projeto
+- `lib` - contém os ficheiros de bibliotecas usados no projeto
 - `binary` - contém os executáveis do projeto
 
 De forma a eliminar os ficheiros gerados pela compilação, basta correr o comando `make clean` na pasta root do projeto.
 
-Foram feitos dois scripts para facilitar a execução dos testes e do valgrind. Para correr os testes basta correr o comando `./runAll.sh` e para correr o valgrind basta correr o comando `./runValgrind.sh`.
+### MacOS 
+Em sistemas operativos MacOS, deve ser usado o comando `make mac` para gerar os executáveis.
 
 ---
 
