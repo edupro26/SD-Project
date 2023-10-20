@@ -11,14 +11,25 @@ Tiago Oliveira - 54979
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <unistd.h>
+#include <errno.h>
+#include <sys/types.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+
+
 
 #include "network_client.h"
+#include "client_stub-private.h"
+
 
 int network_connect(struct rtable_t *rtable) {
     struct sockaddr_in server;
 
     // Create socket
-    if ((rtable->socketfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+    if ((rtable->sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         perror("Erro ao criar socket");
         return -1;
     } 
@@ -34,15 +45,15 @@ int network_connect(struct rtable_t *rtable) {
     }
 
     // Make connection
-    if (connect(sockfd,(struct sockaddr *)&server, sizeof(server)) < 0) {
+    if (connect(rtable->sockfd,(struct sockaddr *)&server, sizeof(server)) < 0) {
         perror("Erro ao conectar-se ao servidor");
-        close(sockfd);
+        close(rtable->sockfd);
         return -1;
     }
 
     return 0;
 }
 
-MessageT *network_send_receive(struct rtable_t *rtable, MessageT *msg); {
-    
+MessageT *network_send_receive(struct rtable_t *rtable, MessageT *msg) {
+    return NULL;
 }
