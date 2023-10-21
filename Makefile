@@ -19,8 +19,8 @@ OBJ_TO_DEL = $(OBJ_DIR)/network_client.o $(OBJ_DIR)/client_stub.o $(OBJ_DIR)/cli
 
 all: $(EXECS)
 
-libtable: $(OBJ_DIR)/table.o $(OBJ_DIR)/data.o $(OBJ_DIR)/entry.o $(OBJ_DIR)/list.o
-	ar rcs $(LIB_DIR)/libtable.a $^
+libtable: 
+	ar rcs $(LIB_DIR)/libtable.a $(OBJ_DIR)/table.o $(OBJ_DIR)/data.o $(OBJ_DIR)/entry.o $(OBJ_DIR)/list.o
 
 table-client: $(BIN_DIR)/table_client
 
@@ -29,10 +29,10 @@ table-server: $(BIN_DIR)/table_server
 # MAC OS COMPILATION
 
 mac-table-client: $(TABLE_CLIENT)
-	$(CC) $^ $(LDFLAGS) -o $(BIN_DIR)/table_client
+	$(CC) $^ $(LDFLAGS) -L$(LIB_DIR) -ltable -o $(BIN_DIR)/table_client
 
 mac-table-server: $(TABLE_SERVER)
-	$(CC) $^ $(LDFLAGS) -o $(BIN_DIR)/table_server
+	$(CC) $^ $(LDFLAGS) -L$(LIB_DIR) -ltable -o $(BIN_DIR)/table_server
 
 mac: libtable mac-table-client mac-table-server
 
