@@ -60,8 +60,3 @@ dkms.conf
 # executables
 binary/**
 
-# Allow object files provided
-!objects/data.o
-!objects/entry.o
-!objects/list.o
-!objects/table.o
