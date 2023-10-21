@@ -10,6 +10,7 @@
 #include <netinet/in.h>
 
 #include "network_server.h"
+#include "table_skel.h"
 
 
 
@@ -18,31 +19,25 @@ int network_server_init(short port) {
     int opt = 1;  // option for setsockopt
     struct sockaddr_in address;
 
-    // 1. Socket Creation
+    // Create socket
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         perror("socket failed");
         return -1;
     }
 
-    // 2. Set Socket Options to reuse address and port
-    if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt)) < 0) {
-        perror("setsockopt");
-        close(sockfd);
-        return -1;
-    }
-
+    // Fill in address struct for binding
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(port);
 
-    // 3. Bind the socket to the specified port
+    // Bind socket
     if (bind(sockfd, (struct sockaddr *)&address, sizeof(address)) < 0) {
-        perror("bind failed");
+        perror("Bind failed");
         close(sockfd);
         return -1;
     }
 
-    // 4. Listen for incoming connections
+    // Listen for incoming connections
     if (listen(sockfd, 5) < 0) {  // backlog of 5, which means up to 5 pending connections will be queued
         perror("listen");
         close(sockfd);
@@ -53,35 +48,133 @@ int network_server_init(short port) {
 }
 
 int network_main_loop(int listening_socket, struct table_t *table) {
+    struct sockaddr_in client_addr;
+    socklen_t client_len = sizeof(client_addr);
     int client_socket;
-    MessageT *msg;
-    MessageT *response;
-    int result;
+    MessageT *request, *response;
 
+    while (1) { // Keep the server running
+
+        // Accept a client connection
+        client_socket = accept(listening_socket, (struct sockaddr*)&client_addr, &client_len);
+        if (client_socket < 0) {
+            perror("Failed to accept client connection");
+            continue;  // Continue to the next iteration of the loop
+        }
+
+        // Receive a message from the client
+        request = network_receive(client_socket);
+        if (!request) {
+            perror("Failed to receive message from client");
+            close(client_socket);
+            continue;
+        }
+
+        // Process the message received on table_skel
+        response = invoke(request, table);
+        message_t__free_unpacked(request, NULL);  // Free the memory of the received request
+
+        if (response < 0) {
+            perror("Failed to process client message");
+            close(client_socket);
+            continue;
+        }
+
+        // Send the response to the client
+        if (network_send(client_socket, response) < 0) {
+            perror("Failed to send response to client");
+        }
+        message_t__free_unpacked(response, NULL);  // Free the memory of the generated response
+
+        // Close client socket
+        close(client_socket);
+    }
 
     return 0;
 }
 
 MessageT *network_receive(int client_socket) {
-    int msg_size;
-    char *buffer;
-    MessageT *msg;
+    int bytes_read;
 
-   return NULL;
+    // Read the size of the incoming message (2 bytes)
+    int16_t message_size;
+    bytes_read = read(client_socket, &message_size, sizeof(int16_t));
+
+    if (bytes_read < sizeof(int16_t) || message_size <= 0) {
+        perror("Failed to read the size of the incoming message or invalid size");
+        return NULL;
+    }
+
+    // Allocate a buffer based on the size of the incoming message
+    uint8_t *buffer = malloc(message_size);
+    if (!buffer) {
+        perror("Failed to allocate memory for the incoming message");
+        return NULL;
+    }
+
+    // Read message into the buffer
+    bytes_read = read(client_socket, buffer, message_size);
+    if (bytes_read != message_size) {
+        perror("Failed to read the full message from the client");
+        free(buffer);
+        return NULL;
+    }
+
+    // Deserialize the message
+    MessageT *message = message_t__unpack(NULL, bytes_read, buffer);
+
+    // Free the buffer
+    free(buffer);
+
+    if (!message) {
+        perror("Failed to unpack the received message");
+        return NULL;
+    }
+
+    return message;
+
 }
 
 int network_send(int client_socket, MessageT *msg) {
-    int msg_size;
-    char *buffer;
+    if (!msg) {
+        perror("Message is NULL");
+        return -1;
+    }
 
-    
+    // Serialize the message
+    size_t message_size = message_t__get_packed_size(msg);
+    uint8_t *buffer = malloc(message_size);
+    if (!buffer) {
+        perror("Failed to allocate memory for serialized message");
+        return -1;
+    }
 
+    message_t__pack(msg, buffer);
+
+    // Send the size of the message (2 bytes)
+    int16_t size_to_send = (int16_t) message_size;
+    if (write(client_socket, &size_to_send, sizeof(int16_t)) != sizeof(int16_t)) {
+        perror("Failed to send the size of the message");
+        free(buffer);
+        return -1;
+    }
+
+    // Send message
+    if (write(client_socket, buffer, message_size) != message_size) {
+        perror("Failed to send the serialized message");
+        free(buffer);
+        return -1;
+    }
+
+    free(buffer);
     return 0;
 }
 
 int network_server_close(int socket) {
+
+    // Close socket
     if (close(socket) < 0) {
-        perror("close");
+        perror("Failed to close the socket");
         return -1;
     }
 
