@@ -122,3 +122,17 @@ MessageT *network_send_receive(struct rtable_t *rtable, MessageT *msg) {
 
     return response;
 }
+
+int network_close(struct rtable_t *rtable) {
+    // Verify if rtable is NULL
+    if (rtable == NULL) {
+        return -1;
+    }
+
+    // Close socket
+    if (close(rtable->sockfd) == -1) {
+        return -1;
+    }
+
+    return 0;  
+}
