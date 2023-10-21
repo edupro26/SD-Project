@@ -33,5 +33,10 @@ int table_skel_destroy(struct table_t *table) {
 }
 
 int invoke(MessageT *msg, struct table_t *table) {
+    if (msg == NULL || table == NULL) {
+        return -1;
+    }
+
+
     return 0;
 }
