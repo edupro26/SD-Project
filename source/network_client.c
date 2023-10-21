@@ -26,32 +26,44 @@ Tiago Oliveira - 54979
 
 
 int network_connect(struct rtable_t *rtable) {
-    struct sockaddr_in server;
+    // Verify if rtable is NULL
+    if (rtable == NULL) {
+        return -1;
+    }
+
+    // Verify if server address or port are NULL
+    if (rtable->server_address == NULL || rtable->server_port == NULL) {
+        return -1;
+    }
+
+    // Create socket struct
+    struct sockaddr_in server_addr;
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(rtable->server_port);
+
+    if (inet_pton(AF_INET, rtable->server_address, &server_addr.sin_addr) <= 0) {
+        perror("inet_pton");
+        return -1;
+    }
 
     // Create socket
-    if ((rtable->sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-        perror("Erro ao criar socket");
-        return -1;
-    } 
-
-    server.sin_family = AF_INET;
-    server.sin_port = htons(rtable->server_port); // Set server port
-
-    // Convert IP
-    if (inet_pton(AF_INET, rtable->server_address, &server.sin_addr) < 1) {
-        printf("Erro ao converter IP\n");
-        close(rtable->sockfd);
+    int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (sockfd < 0) {
+        perror("socket");
         return -1;
     }
 
-    // Make connection
-    if (connect(rtable->sockfd,(struct sockaddr *)&server, sizeof(server)) < 0) {
-        perror("Erro ao conectar-se ao servidor");
-        close(rtable->sockfd);
+    // Connect to server
+    if (connect(sockfd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
+        perror("connect");
+        close(sockfd);
         return -1;
     }
+
+    rtable->sockfd = sockfd;
 
     return 0;
+
 }
 
 MessageT *network_send_receive(struct rtable_t *rtable, MessageT *msg) {
