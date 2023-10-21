@@ -67,5 +67,58 @@ int network_connect(struct rtable_t *rtable) {
 }
 
 MessageT *network_send_receive(struct rtable_t *rtable, MessageT *msg) {
-    return NULL;
+    // Verify if rtable or msg are NULL
+    if (rtable == NULL || msg == NULL) {
+        return NULL;
+    }
+
+    int sockfd = rtable->sockfd; 
+    unsigned char *buf = NULL;
+    size_t len;
+    ssize_t nbytes;
+
+    // Message serialization
+    len = message_t__get_packed_size(msg);
+    buf = malloc(len);
+    if (buf == NULL) {
+        return NULL;
+    }
+    message_t__pack(msg, buf);
+
+    // Send message size (2 bytes)
+    short size = htons(len);
+    if (write(sockfd, &size, sizeof(short)) != sizeof(short)) {
+        free(buf);
+        return NULL;
+    }
+
+    // Send serialized message
+    nbytes = write(sockfd, buf, len);
+    free(buf);  // Free buffer
+    if (nbytes != len) {
+        return NULL;
+    }
+
+    // Receive response size (2 bytes)
+    if (read(sockfd, &size, sizeof(short)) != sizeof(short)) {
+        return NULL;
+    }
+    len = ntohs(size);
+
+    // Receive serialized response
+    buf = malloc(len);
+    if (buf == NULL) {
+        return NULL;
+    }
+    nbytes = read(sockfd, buf, len);
+    if (nbytes != len) {
+        free(buf);
+        return NULL;
+    }
+
+    // Deserialize response
+    MessageT *response = message_t__unpack(NULL, len, buf);
+    free(buf);  // Free buffer
+
+    return response;
 }
