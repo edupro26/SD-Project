@@ -13,6 +13,8 @@ Tiago Oliveira - 54979
 #include <unistd.h>
 #include <string.h>
 
+#include "client_stub-private.h"
+
 int main(int argc, char **argv) {
     /*
     Usage:
@@ -30,20 +32,18 @@ int main(int argc, char **argv) {
     */
 
     // 1. Parse arguments
-    if (argc != 2) {
-        printf("Usage: ./table_client <server>:<port>\n");
-        return -1;
-    }
-    
-    char *server_address = strtok(argv[1], ":");
-    char *server_port = strtok(NULL, ":");
-
-    if (server_address == NULL || server_port == NULL) {
+    if (argc != 1) {
         printf("Usage: ./table_client <server>:<port>\n");
         return -1;
     }
 
-    printf("Connecting to %s:%s...\n", server_address, server_port);
+    rtable_t *rtable = rtable_connect(argv[1]);
+
+    if (rtable == NULL) {
+        printf("Error connecting to server\n");
+        printf("Usage: ./table_client <server>:<port>\n");
+        return -1;
+    }
 
     while (1)
     {
@@ -104,6 +104,7 @@ int main(int argc, char **argv) {
     }
     
 
+    int cls = rtable_disconnect(rtable);
 
     printf("Closing client...\n");
   
