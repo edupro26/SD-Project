@@ -35,9 +35,9 @@ struct rtable_t *rtable_connect(char *address_port) {
     rtable->server_port = atoi(port);
 
     // Connect to server
-    rtable->server_socket = network_connect(rtable);
+    rtable->sockfd = network_connect(rtable);
 
-    if (rtable->server_socket < 0) {
+    if (rtable->sockfd < 0) {
         free(rtable->server_address);
         free(rtable);
         return NULL;
