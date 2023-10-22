@@ -42,7 +42,7 @@ int invoke(MessageT *msg, struct table_t *table) {
             if (msg->c_type == MESSAGE_T__C_TYPE__CT_ENTRY) {
                 struct data_t *data = data_create(msg->entry->value.len, msg->entry->value.data);
                 int result = table_put(table, msg->entry->key, data);
-                data_destroy(data),
+                data_destroy(data);
                 if (result == 0) {
                     msg->opcode = MESSAGE_T__OPCODE__OP_PUT;
                     msg->c_type = MESSAGE_T__C_TYPE__CT_RESULT;
@@ -90,6 +90,7 @@ int invoke(MessageT *msg, struct table_t *table) {
             break;
 
         case MESSAGE_T__OPCODE__OP_SIZE:
+            {
             int size = table_size(table);
             if (size >= 0) {
                 msg->opcode = MESSAGE_T__OPCODE__OP_SIZE;
@@ -99,9 +100,11 @@ int invoke(MessageT *msg, struct table_t *table) {
                 msg->opcode = MESSAGE_T__OPCODE__OP_ERROR;
                 msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
             }
+            }
             break;
 
         case MESSAGE_T__OPCODE__OP_GETKEYS:
+            {
             char **keys = table_get_keys(table);
             if (keys) {
                 // Count number of keys
@@ -115,6 +118,7 @@ int invoke(MessageT *msg, struct table_t *table) {
             } else {
                 msg->opcode = MESSAGE_T__OPCODE__OP_ERROR;
                 msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
+            }
             }
             break;
 
