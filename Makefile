@@ -12,6 +12,7 @@ LDFLAGS = $(MAC_LINK_FLAGS)
 
 EXECS = libtable $(BIN_DIR)/table_server $(BIN_DIR)/table_client
 
+LIB_MAC_OBJ = $(OBJ_DIR)/table-mac.o $(OBJ_DIR)/data-mac.o $(OBJ_DIR)/entry-mac.o $(OBJ_DIR)/list-mac.o
 TABLE_CLIENT = $(OBJ_DIR)/sdmessage.pb-c.o $(OBJ_DIR)/table_client.o $(OBJ_DIR)/client_stub.o $(OBJ_DIR)/network_client.o
 TABLE_SERVER = $(OBJ_DIR)/sdmessage.pb-c.o $(OBJ_DIR)/table_server.o $(OBJ_DIR)/network_server.o $(OBJ_DIR)/table_skel.o
 
@@ -28,13 +29,16 @@ table-server: $(BIN_DIR)/table_server
 
 # MAC OS COMPILATION
 
+libtable-mac:
+	ar rcs $(LIB_DIR)/libtable.a $(LIB_MAC_OBJ)
+
 mac-table-client: $(TABLE_CLIENT)
 	$(CC) $^ $(LDFLAGS) -L$(LIB_DIR) -ltable -o $(BIN_DIR)/table_client
 
 mac-table-server: $(TABLE_SERVER)
 	$(CC) $^ $(LDFLAGS) -L$(LIB_DIR) -ltable -o $(BIN_DIR)/table_server
 
-mac: libtable mac-table-client mac-table-server
+mac: libtable-mac mac-table-client mac-table-server
 
 $(BIN_DIR)/table_client: $(TABLE_CLIENT)
 	$(CC) $^ -o $@
