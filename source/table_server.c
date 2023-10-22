@@ -1,7 +1,66 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+
 #include "network_server.h"
 #include "table_skel.h"
 
-int main() {
+int main(int argc, char **argv) {
+
+    // Check if 2 arguments were passed
+    if (argc != 3) {
+        printf("Usage: ./table_server <port> <n_lists>\n");
+        return -1;
+    }
+
+    // Verify if first argument is a valid port
+    short port = atoi(argv[1]);
+    if (port <= 1023 || port >= 65536) {
+        printf("Invalid port\n");
+        printf("Usage: ./table_server <port> <n_lists>\n");
+        return -1;
+    }
+
+    // Check if the second argument is a valid number of lists
+    int n_lists = atoi(argv[2]);
+    if (n_lists <= 0) {
+        printf("Invalid number of lists\n");
+        printf("Usage: ./table_server <port> <n_lists>\n");
+        return -1;
+    }
+
+    // Start server
+    int sockfd = network_server_init(port);
+
+    if (sockfd < 0) {
+        printf("Error starting server\n");
+        return -1;
+    }
+
+    printf("Server started\n");
+
+    // Initialize table
+    struct table_t *table = table_skel_init(n_lists);
+
+    if (table == NULL) {
+        printf("Error initializing table\n");
+        return -1;
+    }
+
+    // Main loop
+    network_main_loop(sockfd, table);
+
+    // Destroy table
+    table_skel_destroy(table);
+
+    // Close server
+    int cls = network_server_close(sockfd);
+
+    if (cls < 0) {
+        printf("Error closing server\n");
+        return -1;
+    }
+
     return 0;
 }
 
