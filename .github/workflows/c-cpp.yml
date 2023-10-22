@@ -13,8 +13,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Setup Protocol Buffers compiler
-      uses: Noelware/setup-protoc@1.1.0      
+    - name: Install protobuf-c
+      run: sudo apt install libprotobuf-c-dev protobuf-c-compiler  
     - name: Create directories
       run: mkdir lib binary
     - name: make
