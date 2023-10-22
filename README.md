@@ -14,7 +14,15 @@ O diretório do projeto é consituído pelos seguintes subdiretórios:
 
 De forma a eliminar os ficheiros gerados pela compilação, basta correr o comando `make clean` na pasta root do projeto.
 
+### Linux
+
+Para instalar o protoc-c que permite compilar os ficheiros proto e também para ter acesso aos ficheiros header deve-se correr o seguinte comando para instalar as bibliotecas necessárias:
+`sudo apt install libprotobuf-c-dev protobuf-c-compiler`
+
 ### MacOS 
+
+De forma a ter acesso ao comando protoc-c e os ficheiros headers necessários para usar o protobuf-c deve-se percorrer o seguinte comando, assumindo que o Homebrew já está instalado: `brew install protobuf-c`
+
 Em sistemas operativos MacOS, deve ser usado o comando `make mac` para gerar os executáveis.
 
 ---
