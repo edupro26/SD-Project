@@ -41,10 +41,10 @@ mac-table-server: $(TABLE_SERVER)
 mac: libtable-mac mac-table-client mac-table-server
 
 $(BIN_DIR)/table_client: $(TABLE_CLIENT)
-	$(CC) $^ -o $@
+	$(CC) $^ -lprotobuf-c -L$(LIB_DIR) -ltable -o $@
 
 $(BIN_DIR)/table_server: $(TABLE_SERVER)
-	$(CC) $^ -o $@
+	$(CC) $^ -lprotobuf-c -L$(LIB_DIR) -ltable -o $@
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -o $@ -c $<
