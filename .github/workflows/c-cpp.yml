@@ -13,5 +13,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - name: Create directories
+      run: mkdir lib binary objects
     - name: make
       run: make
