@@ -116,3 +116,42 @@ int rtable_put(struct rtable_t *rtable, struct entry_t *entry){
     return 0;
     
 };
+
+struct data_t *rtable_get(struct rtable_t *rtable, char *key) {
+    if (rtable == NULL || entry == NULL) {
+        return NULL;
+    }
+
+    MessageT *msg;
+    message_t__init(msg);
+
+    // Sends the request
+    msg->opcode = MESSAGE_T__OPCODE__OP_GET;
+    msg->c_type = MESSAGE_T__C_TYPE__CT_KEY;
+    msg.key = strdup(key);
+
+    Message *response = network_send_receive(rtable, &msg);
+
+    if (response == NULL) {
+        return NULL;
+    }
+
+    if (response->opcode == MESSAGE_T__OPCODE__OP_ERROR) {
+        message_t__free_unpacked(response, NULL);
+        return NULL;
+    }
+
+    if (response->c_type == MESSAGE_T__C_TYPE__CT_VALUE) {
+        // Returns the data from the response
+        struct data_t *data = (struct data_t *)malloc(sizeof(struct data_t));
+        data->data = malloc(response->value.len);
+        data->datasize = response->value.len;
+        memcpy(data->data, response->value.data, data->datasize);
+
+        message_t__free_unpacked(response, NULL);
+        return data;
+    } else {
+        message_t_free_unpacked(response, NULL);
+        return NULL;
+    }
+}
