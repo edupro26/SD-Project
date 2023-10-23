@@ -118,7 +118,7 @@ int rtable_put(struct rtable_t *rtable, struct entry_t *entry){
 };
 
 struct data_t *rtable_get(struct rtable_t *rtable, char *key) {
-    if (rtable == NULL || entry == NULL) {
+    if (rtable == NULL || key == NULL) {
         return NULL;
     }
 
@@ -134,6 +134,7 @@ struct data_t *rtable_get(struct rtable_t *rtable, char *key) {
     if (msg.key != NULL) {
         free(msg.key);
     }
+    free(msg);
 
     if (response == NULL) {
         return NULL;
