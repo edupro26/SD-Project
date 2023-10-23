@@ -14,6 +14,7 @@ Tiago Oliveira - 54979
 #include <string.h>
 
 #include "client_stub-private.h"
+#include "entry.h"
 
 int main(int argc, char **argv) {
     /*
@@ -31,8 +32,7 @@ int main(int argc, char **argv) {
 
     */
 
-    // 1. Parse arguments
-    if (argc != 1) {
+    if (argc != 2) {
         printf("Usage: ./table_client <server>:<port>\n");
         return -1;
     }
@@ -76,6 +76,21 @@ int main(int argc, char **argv) {
                 continue;
             }
             printf("Executing command: put %s %s\n", command_key, command_data);
+            struct entry_t *entry = entry_create(command_key, command_data);
+
+            int put = rtable_put(rtable, entry);
+
+            if (put < 0) {
+                printf("Error executing command\n");
+                continue;
+            }
+
+            entry_destroy(entry);
+
+            printf("Object put");
+
+
+
         } else if (strcmp(command_name, "get") == 0) {
             if (command_key == NULL) {
                 printf("Usage: get <key>\n");
