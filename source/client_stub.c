@@ -128,11 +128,11 @@ struct data_t *rtable_get(struct rtable_t *rtable, char *key) {
     // Sends the request
     msg->opcode = MESSAGE_T__OPCODE__OP_GET;
     msg->c_type = MESSAGE_T__C_TYPE__CT_KEY;
-    msg.key = strdup(key);
+    msg->key = strdup(key);
 
     MessageT *response = network_send_receive(rtable, msg);
-    if (msg.key != NULL) {
-        free(msg.key);
+    if (msg->key != NULL) {
+        free(msg->key);
     }
     free(msg);
 
@@ -155,7 +155,7 @@ struct data_t *rtable_get(struct rtable_t *rtable, char *key) {
         message_t__free_unpacked(response, NULL);
         return data;
     } else {
-        message_t_free_unpacked(response, NULL);
+        message_t__free_unpacked(response, NULL);
         return NULL;
     }
 }
