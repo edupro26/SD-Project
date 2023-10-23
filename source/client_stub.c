@@ -66,3 +66,53 @@ int rtable_disconnect(struct rtable_t *rtable) {
 
     return 0;
 }
+
+int rtable_put(struct rtable_t *rtable, struct entry_t *entry){
+    if (rtable == NULL || entry == NULL) {
+        return -1;
+    }
+
+    // Create message
+    MessageT *msg = (MessageT *) malloc(sizeof(MessageT));
+    if (msg == NULL) {
+        return -1;
+    }
+
+    message_t__init(msg);
+
+    msg->opcode = MESSAGE_T__OPCODE__OP_PUT;
+    msg->c_type = MESSAGE_T__C_TYPE__CT_ENTRY;
+
+    // Create entry
+    EntryT *entry_msg = (EntryT *) malloc(sizeof(EntryT));
+    if (entry_msg == NULL) {
+        message_t__free_unpacked(msg, NULL);
+        return -1;
+    }
+
+    entry_t__init(entry_msg);
+  
+
+    msg->entry = entry_msg;
+
+    // Send message
+    MessageT *response = network_send_receive(rtable, msg);
+
+    // Free message
+    message_t__free_unpacked(msg, NULL);
+
+    if (response == NULL) {
+        return -1;
+    }
+
+    // Check response
+    if (response->opcode == MESSAGE_T__OPCODE__OP_ERROR) {
+        message_t__free_unpacked(response, NULL);
+        return -1;
+    }
+
+    message_t__free_unpacked(response, NULL);
+
+    return 0;
+    
+};
