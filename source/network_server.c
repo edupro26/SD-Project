@@ -53,14 +53,10 @@ int network_main_loop(int listening_socket, struct table_t *table) {
     int client_socket;
     MessageT *request, *response;
 
-    while (1) { // Keep the server running
+    while ((client_socket = accept(listening_socket, (struct sockaddr*)&client_addr, &client_len)) != -1) { // Keep the server running
 
-        // Accept a client connection
-        client_socket = accept(listening_socket, (struct sockaddr*)&client_addr, &client_len);
-        if (client_socket < 0) {
-            perror("Failed to accept client connection");
-            continue;  // Continue to the next iteration of the loop
-        }
+        printf("New client connected\n");
+
 
         // Receive a message from the client
         request = network_receive(client_socket);
