@@ -122,7 +122,7 @@ struct data_t *rtable_get(struct rtable_t *rtable, char *key) {
         return NULL;
     }
 
-    MessageT *msg;
+    MessageT *msg = (MessageT *)malloc(sizeof(MessageT));
     message_t__init(msg);
 
     // Sends the request
@@ -130,7 +130,10 @@ struct data_t *rtable_get(struct rtable_t *rtable, char *key) {
     msg->c_type = MESSAGE_T__C_TYPE__CT_KEY;
     msg.key = strdup(key);
 
-    Message *response = network_send_receive(rtable, &msg);
+    MessageT *response = network_send_receive(rtable, msg);
+    if (msg.key != NULL) {
+        free(msg.key);
+    }
 
     if (response == NULL) {
         return NULL;
