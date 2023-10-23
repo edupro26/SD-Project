@@ -95,7 +95,7 @@ MessageT *network_send_receive(struct rtable_t *rtable, MessageT *msg) {
     // Send serialized message
     nbytes = write(sockfd, buf, len);
     free(buf);  // Free buffer
-    if (nbytes != len) {
+    if ((size_t)nbytes != len) {
         return NULL;
     }
 
@@ -111,7 +111,7 @@ MessageT *network_send_receive(struct rtable_t *rtable, MessageT *msg) {
         return NULL;
     }
     nbytes = read(sockfd, buf, len);
-    if (nbytes != len) {
+    if ((size_t)nbytes != len) {
         free(buf);
         return NULL;
     }
