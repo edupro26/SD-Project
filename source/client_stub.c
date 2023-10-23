@@ -159,3 +159,34 @@ struct data_t *rtable_get(struct rtable_t *rtable, char *key) {
         return NULL;
     }
 }
+
+int rtable_del(struct rtable_t *rtable, char *key) {
+    if (rtable == NULL || key == NULL) {
+        return -1;
+    }
+
+    MessageT *msg = (MessageT *)malloc(sizeof(MessageT));
+    message_t__init(msg);
+
+    // Sends the request
+    msg->opcode = MESSAGE_T__OPCODE__OP_DEL;
+    msg->c_type = MESSAGE_T__C_TYPE__CT_KEY;
+    msg->key = strdup(key);
+
+    MessageT *response = network_send_receive(rtable, msg);
+    if (msg->key != NULL) {
+        free(msg->key);
+    }
+    free(msg);
+
+    if (response == NULL) {
+        return -1;
+    }
+
+    if (response->opcode == MESSAGE_T__OPCODE__OP_ERROR) {
+        message_t__free_unpacked(response, NULL);
+        return -1;
+    }
+    //TODO
+
+}
