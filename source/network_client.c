@@ -87,20 +87,20 @@ MessageT *network_send_receive(struct rtable_t *rtable, MessageT *msg) {
 
     // Send message size (2 bytes)
     short size = htons(len);
-    if (write(sockfd, &size, sizeof(short)) != sizeof(short)) {
+    if (write_all(sockfd, &size, sizeof(short)) != sizeof(short)) {
         free(buf);
         return NULL;
     }
 
     // Send serialized message
-    nbytes = write(sockfd, buf, len);
+    nbytes = write_all(sockfd, buf, len);
     free(buf);  // Free buffer
     if ((size_t)nbytes != len) {
         return NULL;
     }
 
     // Receive response size (2 bytes)
-    if (read(sockfd, &size, sizeof(short)) != sizeof(short)) {
+    if (read_all(sockfd, &size, sizeof(short)) != sizeof(short)) {
         return NULL;
     }
     len = ntohs(size);
@@ -110,7 +110,7 @@ MessageT *network_send_receive(struct rtable_t *rtable, MessageT *msg) {
     if (buf == NULL) {
         return NULL;
     }
-    nbytes = read(sockfd, buf, len);
+    nbytes = read_all(sockfd, buf, len);
     if ((size_t)nbytes != len) {
         free(buf);
         return NULL;

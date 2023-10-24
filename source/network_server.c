@@ -94,7 +94,7 @@ MessageT *network_receive(int client_socket) {
 
     // Read the size of the incoming message (2 bytes)
     int16_t message_size;
-    bytes_read = read(client_socket, &message_size, sizeof(int16_t));
+    bytes_read = read_all(client_socket, &message_size, sizeof(int16_t));
 
     if (bytes_read < sizeof(int16_t) || message_size <= 0) {
         perror("Failed to read the size of the incoming message or invalid size");
@@ -109,7 +109,7 @@ MessageT *network_receive(int client_socket) {
     }
 
     // Read message into the buffer
-    bytes_read = read(client_socket, buffer, message_size);
+    bytes_read = read_all(client_socket, buffer, message_size);
     if (bytes_read != message_size) {
         perror("Failed to read the full message from the client");
         free(buffer);
@@ -149,14 +149,14 @@ int network_send(int client_socket, MessageT *msg) {
 
     // Send the size of the message (2 bytes)
     int16_t size_to_send = (int16_t) message_size;
-    if (write(client_socket, &size_to_send, sizeof(int16_t)) != sizeof(int16_t)) {
+    if (write_all(client_socket, &size_to_send, sizeof(int16_t)) != sizeof(int16_t)) {
         perror("Failed to send the size of the message");
         free(buffer);
         return -1;
     }
 
     // Send message
-    if (write(client_socket, buffer, message_size) != message_size) {
+    if (write_all(client_socket, buffer, message_size) != message_size) {
         perror("Failed to send the serialized message");
         free(buffer);
         return -1;
