@@ -198,3 +198,43 @@ int rtable_del(struct rtable_t *rtable, char *key) {
     }
 
 }
+
+char **rtable_get_keys(struct rtable_t *rtable) {
+    if (rtable == NULL) {
+        return NULL;
+    }
+
+    MessageT *msg = (MessageT *)malloc(sizeof(MessageT));
+    message_t__init(msg);
+
+    // Sends the request
+    msg->opcode = MESSAGE_T__OPCODE__OP_GETKEYS;
+    msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
+
+    MessageT *response = network_send_receive(rtable, msg);
+    free(msg);
+
+    if (response == NULL) {
+        return NULL;
+    }
+
+    if (response->opcode == MESSAGE_T__OPCODE__OP_ERROR) {
+        message_t__free_unpacked(response, NULL);
+        return NULL;
+    }
+
+    if (response->opcode == MESSAGE_T__OPCODE__OP_GETKEYS &&
+        response->c_type == MESSAGE_T__C_TYPE__CT_KEYS) {
+        // Returns the keys from the response
+        char **keys = (char **)malloc(sizeof(char *) * (response->n_keys + 1));
+        for (int i = 0; i < response->n_keys; i++) {
+            keys[i] = strdup(response->keys[i]);
+        }
+        keys[response->n_keys] = NULL;
+
+        message_t__free_unpacked(response, NULL);
+        return keys;
+    } else {
+        message_t__free_unpacked(response, NULL);
+        return NULL;
+}
