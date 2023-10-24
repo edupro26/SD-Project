@@ -38,8 +38,9 @@ struct rtable_t *rtable_connect(char *address_port) {
     rtable->server_address = strdup(address);
     rtable->server_port = atoi(port);
 
-    // Connect to server
-    rtable->sockfd = network_connect(rtable);
+    if (network_connect(rtable) < 0) {
+        perror("Error connecting to server.");
+    }
 
     if (rtable->sockfd < 0) {
         free(rtable->server_address);
@@ -209,6 +210,7 @@ int rtable_size(struct rtable_t *rtable) {
 
     // Sends the request
     msg->opcode = MESSAGE_T__OPCODE__OP_SIZE;
+    msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
 
     MessageT *response = network_send_receive(rtable, msg);
     if (msg->key != NULL) {
