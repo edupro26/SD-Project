@@ -274,3 +274,15 @@ char **rtable_get_keys(struct rtable_t *rtable) {
         return NULL;
     }
 }
+
+void rtable_free_keys(char **keys) {
+    if (keys == NULL) {
+        return;
+    }
+
+    for (int i = 0; keys[i] != NULL; i++) {
+        free(keys[i]);
+    }
+
+    free(keys);
+}
