@@ -336,3 +336,15 @@ struct entry_t **rtable_get_table(struct rtable_t *rtable) {
         return NULL;
     }
 }
+
+void rtable_free_entries(struct entry_t **entries) {
+    if (entries == NULL) {
+        return;
+    }
+
+    for (int i = 0; entries[i] != NULL; i++) {
+        free(entries[i]);
+    }
+
+    free(entries);
+}
