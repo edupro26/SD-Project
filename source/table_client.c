@@ -75,8 +75,7 @@ int main(int argc, char **argv) {
             if (put < 0)
                 printf("Error executing command\n");
 
-            entry_destroy(entry);
-            printf("Object put");
+            printf("Object put\n");
 
         } else if (strcmp(command_name, "get") == 0) {
             if (command_key == NULL) {
