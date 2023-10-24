@@ -124,18 +124,52 @@ int invoke(MessageT *msg, struct table_t *table) {
         
         case MESSAGE_T__OPCODE__OP_GETTABLE:
             {
-            EntryT **entries = table_get_entries(table);
-            if (entries) {
-                int count;
-                for (count = 0; entries[count] != NULL; count++);
-                msg->opcode = MESSAGE_T__OPCODE__OP_GETTABLE;
-                msg->c_type = MESSAGE_T__C_TYPE__CT_TABLE;
-                msg->entries = entries;
-                msg->n_entries = count;
-            } else {
-                msg->opcode = MESSAGE_T__OPCODE__OP_ERROR;
-                msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
-            }
+                int table_size = table_size(table);
+
+                if (table_size >= 0) {
+                    // Create an array of EntryT pointers to hold the entries
+                    EntryT **entries = (EntryT **)malloc((table_size + 1) * sizeof(EntryT *));
+                    
+                    if (entries) {
+                        int entry_index = 0;
+            
+                        // Iterate through the table to retrieve all entries
+                        for (int i = 0; i < table->num_lists; i++) {
+                            struct list_t *list = table->list[i];
+                            struct list_entry_t *current_entry = list->head;
+            
+                            while (current_entry != NULL) {
+                                struct entry_t *entry = current_entry->entry;
+            
+                                // Create a new EntryT struct and copy the key and data
+                                EntryT *new_entry = (EntryT *)malloc(sizeof(EntryT));
+                                new_entry->key = strdup(entry->key);
+                                new_entry->value.data = (char *)malloc(entry->value->datasize);
+                                memcpy(new_entry->value.data, entry->value->data, entry->value->datasize);
+                                new_entry->value.len = entry->value->datasize;
+                                
+                                entries[entry_index] = new_entry;
+                                entry_index++;
+            
+                                current_entry = current_entry->next;
+                            }
+                        }
+            
+                        entries[table_size] = NULL; // Set the last entry to NULL
+                        
+                        // Update the message structure
+                        msg->opcode = MESSAGE_T__OPCODE__OP_GETTABLE;
+                        msg->c_type = MESSAGE_T__C_TYPE__CT_TABLE;
+                        msg->entries = entries;
+                        msg->n_entries = table_size;
+                    } else {
+                        msg->opcode = MESSAGE_T__OPCODE__OP_ERROR;
+                        msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
+                    }
+                } else {
+                    msg->opcode = MESSAGE_T__OPCODE__OP_ERROR;
+                    msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
+                }
             }
             break;
 
