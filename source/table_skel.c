@@ -121,7 +121,19 @@ int invoke(MessageT *msg, struct table_t *table) {
             }
             }
             break;
-
+        
+        case MESSAGE_T__OPCODE__OP_GETTABLE:
+            {
+            struct entry_t **entries = table_get_entries(table);
+            if (entries) {
+                int count;
+                for (count = 0; entries[count] != NULL; count++);
+                msg->opcode = MESSAGE_T__OPCODE__OP_GETTABLE;
+                msg->c_type = MESSAGE_T__C_TYPE__CT_TABLE;
+                msg->entries = entries;
+                msg->n_entries = count;
+            }
+            }
 
         default:
             return -1;  // Unknown operation
