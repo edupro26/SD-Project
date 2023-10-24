@@ -187,6 +187,14 @@ int rtable_del(struct rtable_t *rtable, char *key) {
         message_t__free_unpacked(response, NULL);
         return -1;
     }
-    //TODO
+    
+    if (response->opcode == MESSAGE_T__OPCODE__OP_DEL &&
+        response->c_type == MESSAGE_T__C_TYPE__CT_RESULT) {
+        message_t__free_unpacked(response, NULL);
+        return 0;
+    } else {
+        message_t__free_unpacked(response, NULL);
+        return -1;
+    }
 
 }
