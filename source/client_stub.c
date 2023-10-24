@@ -1,4 +1,4 @@
-/* 
+/*
 
 Sistemas Distribuidos - Projeto Fase 2
 Grupo 8
@@ -91,7 +91,7 @@ int rtable_put(struct rtable_t *rtable, struct entry_t *entry){
     }
 
     entry_t__init(entry_msg);
-  
+
 
     msg->entry = entry_msg;
 
@@ -114,7 +114,7 @@ int rtable_put(struct rtable_t *rtable, struct entry_t *entry){
     message_t__free_unpacked(response, NULL);
 
     return 0;
-    
+
 };
 
 struct data_t *rtable_get(struct rtable_t *rtable, char *key) {
@@ -187,7 +187,7 @@ int rtable_del(struct rtable_t *rtable, char *key) {
         message_t__free_unpacked(response, NULL);
         return -1;
     }
-    
+
     if (response->opcode == MESSAGE_T__OPCODE__OP_DEL &&
         response->c_type == MESSAGE_T__C_TYPE__CT_RESULT) {
         message_t__free_unpacked(response, NULL);
@@ -198,38 +198,45 @@ int rtable_del(struct rtable_t *rtable, char *key) {
     }
 }
 
-int rtable_size(struct rtable_t *rtable) {
+}
+
+char **rtable_get_keys(struct rtable_t *rtable) {
     if (rtable == NULL) {
-        return -1;
+        return NULL;
     }
 
     MessageT *msg = (MessageT *)malloc(sizeof(MessageT));
     message_t__init(msg);
 
     // Sends the request
-    msg->opcode = MESSAGE_T__OPCODE__OP_SIZE;
+    msg->opcode = MESSAGE_T__OPCODE__OP_GETKEYS;
+    msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
 
     MessageT *response = network_send_receive(rtable, msg);
-    if (msg->key != NULL) {
-        free(msg->key);
-    }
     free(msg);
 
     if (response == NULL) {
-        return -1;
+        return NULL;
     }
 
     if (response->opcode == MESSAGE_T__OPCODE__OP_ERROR) {
         message_t__free_unpacked(response, NULL);
-        return -1;
+        return NULL;
     }
 
-    if (response->opcode == MESSAGE_T__OPCODE__OP_SIZE) {
-        int size = response->size;
+    if (response->opcode == MESSAGE_T__OPCODE__OP_GETKEYS &&
+        response->c_type == MESSAGE_T__C_TYPE__CT_KEYS) {
+        // Returns the keys from the response
+        char **keys = (char **)malloc(sizeof(char *) * (response->n_keys + 1));
+        for (int i = 0; i < response->n_keys; i++) {
+            keys[i] = strdup(response->keys[i]);
+        }
+        keys[response->n_keys] = NULL;
+
         message_t__free_unpacked(response, NULL);
-        return size;
+        return keys;
     } else {
         message_t__free_unpacked(response, NULL);
-        return -1;
+        return NULL;
     }
 }
