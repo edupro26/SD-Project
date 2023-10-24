@@ -287,3 +287,52 @@ void rtable_free_keys(char **keys) {
 
     free(keys);
 }
+
+struct entry_t **rtable_get_table(struct rtable_t *rtable) {
+    if (rtable == NULL) {
+        return NULL;
+    }
+
+    MessageT *msg = (MessageT *)malloc(sizeof(MessageT));
+    message_t__init(msg);
+
+    // Sends the request
+    msg->opcode = MESSAGE_T__OPCODE__OP_GETTABLE;
+    msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
+
+    MessageT *response = network_send_receive(rtable, msg);
+    free(msg);
+
+    if (response == NULL) {
+        return NULL;
+    }
+
+    if (response->opcode == MESSAGE_T__OPCODE__OP_ERROR) {
+        message_t__free_unpacked(response, NULL);
+        return NULL;
+    }
+    if (response->opcode == MESSAGE_T__OPCODE__OP_GETTABLE &&
+        response->c_type == MESSAGE_T__C_TYPE__CT_TABLE) {
+        struct entry_t **entries = (struct entry_t **)malloc(sizeof(struct entry_t *) * (response->n_entries + 1));
+        if (entries == NULL) {
+            message_t__free_unpacked(response, NULL);
+            return NULL;
+        }
+
+        for (int i = 0; i < response->n_entries; i++) {
+            entries[i] = (struct entry_t *)malloc(sizeof(struct entry_t));
+            entry_t__init(entries[i]);
+
+            entries[i]->key = strdup(response->entries[i]->key);
+            entries[i]->value = data_create(response->entries[i]->value.data, response->entries[i]->value.len);
+        }
+
+        entries[response->n_entries] = NULL;
+
+        message_t__free_unpacked(response, NULL);
+        return entries;
+    } else {
+        message_t__free_unpacked(response, NULL);
+        return NULL;
+    }
+}
