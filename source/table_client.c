@@ -84,12 +84,24 @@ int main(int argc, char **argv) {
                 continue;
             }
             printf("Executing command: get %s\n", command_key);
+            struct data_t *data = rtable_get(rtable, command_key);
+            if (data == NULL) {
+                printf("Error executing command\n");
+                continue;
+            }
+            printf("Data: %s\n", data->data);
         } else if (strcmp(command_name, "del") == 0) {
             if (command_key == NULL) {
                 printf("Usage: del <key>\n");
                 continue;
             }
             printf("Executing command: del %s\n", command_key);
+            int del = rtable_del(rtable, command_key);
+            if (del < 0) {
+                printf("Error executing command\n");
+                continue;
+            }
+            printf("Object deleted\n");
         } else if (strcmp(command_name, "size") == 0) {
             printf("Executing command: size\n");
             int size = rtable_size(rtable);
