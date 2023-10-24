@@ -10,6 +10,7 @@
 #include <netinet/in.h>
 
 #include "network_server.h"
+#include "message-private.h"
 #include "table_skel.h"
 
 

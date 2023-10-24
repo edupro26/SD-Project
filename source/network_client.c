@@ -22,6 +22,7 @@ Tiago Oliveira - 54979
 
 
 #include "network_client.h"
+#include "message-private.h"
 #include "client_stub-private.h"
 
 
