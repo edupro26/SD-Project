@@ -87,10 +87,10 @@ int rtable_put(struct rtable_t *rtable, struct entry_t *entry){
         message_t__free_unpacked(msg, NULL);
         return -1;
     }
-
     entry_t__init(entry_msg);
     entry_msg->key = malloc(strlen(entry->key)+1);
     strcpy(entry_msg->key, entry->key);
+    
     ProtobufCBinaryData data;
     data.len = entry->value->datasize;
     data.data = malloc(entry->value->datasize);
@@ -99,14 +99,7 @@ int rtable_put(struct rtable_t *rtable, struct entry_t *entry){
     msg->entry = entry_msg;
 
     // Send message
-    unsigned len = message_t__get_packed_size(msg);
-    message_t__pack(msg, malloc(len));
     MessageT *response = network_send_receive(rtable, msg);
-
-    // Free message
-    message_t__free_unpacked(msg, NULL);
-    if (response == NULL)
-        return -1;
 
     // Check response
     if (response->opcode == MESSAGE_T__OPCODE__OP_ERROR) {
@@ -114,6 +107,13 @@ int rtable_put(struct rtable_t *rtable, struct entry_t *entry){
         return -1;
     }
 
+    // Free message
+    if (response == NULL) {
+        message_t__free_unpacked(response, NULL);
+        return -1;
+    }
+
+    message_t__free_unpacked(msg, NULL);
     message_t__free_unpacked(response, NULL);
     return 0;
 }

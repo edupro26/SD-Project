@@ -46,7 +46,7 @@ int main(int argc, char **argv) {
 
     while (1)  {
         // Receive command
-        printf("Enter a command:\n");
+        printf("Enter a command: ");
         char *command = NULL;
         size_t command_size = 0;
         ssize_t command_len = getline(&command, &command_size, stdin);
