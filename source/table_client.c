@@ -105,8 +105,24 @@ int main(int argc, char **argv) {
             printf("Executing command: del %s\n", command_key);
         } else if (strcmp(command_name, "size") == 0) {
             printf("Executing command: size\n");
+            int size = rtable_size(rtable);
+            if (size < 0) {
+                printf("Error executing command\n");
+                continue;
+            }
+            printf("Table size: %d\n", size);
         } else if (strcmp(command_name, "getkeys") == 0) {
             printf("Executing command: getkeys\n");
+            char **keys = rtable_get_keys(rtable);
+            if (keys == NULL) {
+                printf("Error executing command\n");
+                continue;
+            }
+            printf("Keys:\n");
+            for (int i = 0; keys[i] != NULL; i++) {
+                printf("%s\n", keys[i]);
+            }
+            rtable_free_keys(keys);
         } else if (strcmp(command_name, "gettable") == 0) {
             printf("Executing command: gettable\n");
         } else if (strcmp(command_name, "quit") == 0) {
