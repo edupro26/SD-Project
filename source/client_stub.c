@@ -225,7 +225,7 @@ int rtable_size(struct rtable_t *rtable) {
     }
 
     if (response->opcode == MESSAGE_T__OPCODE__OP_SIZE) {
-        int size = response->size;
+        int size = response->n_entries;
         message_t__free_unpacked(response, NULL);
         return size;
     } else {
