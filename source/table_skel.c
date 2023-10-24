@@ -8,8 +8,11 @@ Tiago Oliveira - 54979
 
 */
 
+#include <stdlib.h>
+#include <string.h>
 
 #include "table_skel.h"
+
 
 struct table_t *table_skel_init(int n_lists) {
     // Create table
@@ -57,6 +60,7 @@ int invoke(MessageT *msg, struct table_t *table) {
         case MESSAGE_T__OPCODE__OP_GET:
             if (msg->c_type == MESSAGE_T__C_TYPE__CT_KEY) {
                 struct data_t *result_data = table_get(table, msg->key);
+
                 if (result_data) {
                     msg->opcode = MESSAGE_T__OPCODE__OP_GET;
                     msg->c_type = MESSAGE_T__C_TYPE__CT_VALUE;
@@ -124,52 +128,44 @@ int invoke(MessageT *msg, struct table_t *table) {
         
         case MESSAGE_T__OPCODE__OP_GETTABLE:
             {
-                int table_size = table_size(table);
+            // Get all keys
+            char **keys = table_get_keys(table);
+            int num_keys = table_size(table);
 
-                if (table_size >= 0) {
-                    // Create an array of EntryT pointers to hold the entries
-                    EntryT **entries = (EntryT **)malloc((table_size + 1) * sizeof(EntryT *));
-                    
-                    if (entries) {
-                        int entry_index = 0;
-            
-                        // Iterate through the table to retrieve all entries
-                        for (int i = 0; i < table->num_lists; i++) {
-                            struct list_t *list = table->list[i];
-                            struct list_entry_t *current_entry = list->head;
-            
-                            while (current_entry != NULL) {
-                                struct entry_t *entry = current_entry->entry;
-            
-                                // Create a new EntryT struct and copy the key and data
-                                EntryT *new_entry = (EntryT *)malloc(sizeof(EntryT));
-                                new_entry->key = strdup(entry->key);
-                                new_entry->value.data = (char *)malloc(entry->value->datasize);
-                                memcpy(new_entry->value.data, entry->value->data, entry->value->datasize);
-                                new_entry->value.len = entry->value->datasize;
-                                
-                                entries[entry_index] = new_entry;
-                                entry_index++;
-            
-                                current_entry = current_entry->next;
-                            }
-                        }
-            
-                        entries[table_size] = NULL; // Set the last entry to NULL
-                        
-                        // Update the message structure
-                        msg->opcode = MESSAGE_T__OPCODE__OP_GETTABLE;
-                        msg->c_type = MESSAGE_T__C_TYPE__CT_TABLE;
-                        msg->entries = entries;
-                        msg->n_entries = table_size;
-                    } else {
-                        msg->opcode = MESSAGE_T__OPCODE__OP_ERROR;
-                        msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
+            // Create array of entries and allocate memory
+            msg->entries = malloc(num_keys * sizeof(EntryT *));
+            if (!msg->entries) {
+                table_free_keys(keys);
+                msg->opcode = MESSAGE_T__OPCODE__OP_ERROR;
+                return -1;
+            }
+
+            for (int i = 0; i < num_keys; i++) {
+                struct data_t *data = table_get(table, keys[i]);
+
+                // Create entry
+                EntryT *entry = malloc(sizeof(EntryT));
+                if (!entry) {
+                    // Free all memory allocated if error
+                    for (int j = 0; j < i; j++) {
+                        free(msg->entries[j]);
                     }
-                } else {
+                    free(msg->entries);
+                    table_free_keys(keys);
                     msg->opcode = MESSAGE_T__OPCODE__OP_ERROR;
-                    msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
+                    return -1;
                 }
+                entry_t__init(entry);
+                entry->key = strdup(keys[i]);
+                entry->value.data = data->data; 
+                entry->value.len = data->datasize;  
+
+                msg->entries[i] = entry;
+            }
+
+            table_free_keys(keys);
+            return 0;
+        
             }
             break;
 
