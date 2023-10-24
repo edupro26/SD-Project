@@ -10,9 +10,9 @@ Tiago Oliveira - 54979
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
+
 #include <data.h>
-
-
 #include "client_stub-private.h"
 
 
