@@ -196,5 +196,40 @@ int rtable_del(struct rtable_t *rtable, char *key) {
         message_t__free_unpacked(response, NULL);
         return -1;
     }
+}
 
+int rtable_size(struct rtable_t *rtable) {
+    if (rtable == NULL) {
+        return -1;
+    }
+
+    MessageT *msg = (MessageT *)malloc(sizeof(MessageT));
+    message_t__init(msg);
+
+    // Sends the request
+    msg->opcode = MESSAGE_T__OPCODE__OP_SIZE;
+
+    MessageT *response = network_send_receive(rtable, msg);
+    if (msg->key != NULL) {
+        free(msg->key);
+    }
+    free(msg);
+
+    if (response == NULL) {
+        return -1;
+    }
+
+    if (response->opcode == MESSAGE_T__OPCODE__OP_ERROR) {
+        message_t__free_unpacked(response, NULL);
+        return -1;
+    }
+
+    if (response->opcode == MESSAGE_T__OPCODE__OP_SIZE) {
+        int size = response->size;
+        message_t__free_unpacked(response, NULL);
+        return size;
+    } else {
+        message_t__free_unpacked(response, NULL);
+        return -1;
+    }
 }
