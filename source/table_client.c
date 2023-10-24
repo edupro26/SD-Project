@@ -16,8 +16,7 @@ Tiago Oliveira - 54979
 #include "client_stub-private.h"
 #include "entry.h"
 
-int main(int argc, char **argv) {
-    /*
+/*
     Usage:
     ./table_client <ip_server>:<port_server>
 
@@ -30,7 +29,8 @@ int main(int argc, char **argv) {
     gettable
     quit
 
-    */
+*/
+int main(int argc, char **argv) {
 
     if (argc != 2) {
         printf("Usage: ./table_client <server>:<port>\n");
@@ -38,58 +38,44 @@ int main(int argc, char **argv) {
     }
 
     struct rtable_t *rtable = rtable_connect(argv[1]);
-
     if (rtable == NULL) {
         printf("Error connecting to server\n");
         printf("Usage: ./table_client <server>:<port>\n");
         return -1;
     }
 
-    while (1)
-    {
+    while (1)  {
         // Receive command
+        printf("Enter a command:\n");
         char *command = NULL;
         size_t command_size = 0;
         ssize_t command_len = getline(&command, &command_size, stdin);
-        if (command_len == -1) {
+        if (command_len == -1)
             printf("Error reading command\n");
-            continue;
-        }
 
         // Remove newline character
         command[command_len-1] = '\0';
-
         // Parse command
         char *command_name = strtok(command, " ");
         char *command_key = strtok(NULL, " ");
         char *command_data = strtok(NULL, " ");
 
-        if (command_name == NULL) {
+        if (command_name == NULL)
             printf("Error parsing command\n");
-            continue;
-        }
-
+            
         // Execute command
         if (strcmp(command_name, "put") == 0) {
-            if (command_key == NULL || command_data == NULL) {
+            if (command_key == NULL || command_data == NULL)
                 printf("Usage: put <key> <data>\n");
-                continue;
-            }
+
             printf("Executing command: put %s %s\n", command_key, command_data);
             struct entry_t *entry = entry_create(command_key, command_data);
-
             int put = rtable_put(rtable, entry);
-
-            if (put < 0) {
+            if (put < 0)
                 printf("Error executing command\n");
-                continue;
-            }
 
             entry_destroy(entry);
-
             printf("Object put");
-
-
 
         } else if (strcmp(command_name, "get") == 0) {
             if (command_key == NULL) {

@@ -69,18 +69,15 @@ int rtable_disconnect(struct rtable_t *rtable) {
 }
 
 int rtable_put(struct rtable_t *rtable, struct entry_t *entry){
-    if (rtable == NULL || entry == NULL) {
+    if (rtable == NULL || entry == NULL)
         return -1;
-    }
 
     // Create message
     MessageT *msg = (MessageT *) malloc(sizeof(MessageT));
-    if (msg == NULL) {
+    if (msg == NULL)
         return -1;
-    }
 
     message_t__init(msg);
-
     msg->opcode = MESSAGE_T__OPCODE__OP_PUT;
     msg->c_type = MESSAGE_T__C_TYPE__CT_ENTRY;
 
@@ -92,19 +89,26 @@ int rtable_put(struct rtable_t *rtable, struct entry_t *entry){
     }
 
     entry_t__init(entry_msg);
-
-
+    entry_msg->key = malloc(strlen(entry->key)+1);
+    strcpy(entry_msg->key, entry->key);
+    ProtobufCBinaryData data;
+    data.len = entry->value->datasize;
+    data.data = malloc(entry->value->datasize);
+    // SEG FAULT (ERROR)
+    memcpy(data.data, entry->value->data, entry->value->datasize);
+    printf("Passei\n");
+    entry_msg->value = data;
     msg->entry = entry_msg;
 
     // Send message
+    unsigned len = message_t__get_packed_size(msg);
+    message_t__pack(msg, malloc(len));
     MessageT *response = network_send_receive(rtable, msg);
 
     // Free message
     message_t__free_unpacked(msg, NULL);
-
-    if (response == NULL) {
+    if (response == NULL)
         return -1;
-    }
 
     // Check response
     if (response->opcode == MESSAGE_T__OPCODE__OP_ERROR) {
@@ -113,10 +117,8 @@ int rtable_put(struct rtable_t *rtable, struct entry_t *entry){
     }
 
     message_t__free_unpacked(response, NULL);
-
     return 0;
-
-};
+}
 
 struct data_t *rtable_get(struct rtable_t *rtable, char *key) {
     if (rtable == NULL || key == NULL) {
