@@ -237,4 +237,5 @@ char **rtable_get_keys(struct rtable_t *rtable) {
     } else {
         message_t__free_unpacked(response, NULL);
         return NULL;
+    }
 }
