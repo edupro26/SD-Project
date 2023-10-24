@@ -69,7 +69,8 @@ int main(int argc, char **argv) {
                 printf("Usage: put <key> <data>\n");
 
             printf("Executing command: put %s %s\n", command_key, command_data);
-            struct entry_t *entry = entry_create(command_key, command_data);
+            struct data_t *data = data_create(strlen(command_data), command_data);
+            struct entry_t *entry = entry_create(command_key, data);
             int put = rtable_put(rtable, entry);
             if (put < 0)
                 printf("Error executing command\n");

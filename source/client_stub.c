@@ -94,9 +94,7 @@ int rtable_put(struct rtable_t *rtable, struct entry_t *entry){
     ProtobufCBinaryData data;
     data.len = entry->value->datasize;
     data.data = malloc(entry->value->datasize);
-    // SEG FAULT (ERROR)
     memcpy(data.data, entry->value->data, entry->value->datasize);
-    printf("Passei\n");
     entry_msg->value = data;
     msg->entry = entry_msg;
 
