@@ -52,38 +52,41 @@ int network_main_loop(int listening_socket, struct table_t *table) {
     struct sockaddr_in client_addr;
     socklen_t client_len = sizeof(client_addr);
     int client_socket;
-    MessageT *request, *response;
+    MessageT *request;
 
     while ((client_socket = accept(listening_socket, (struct sockaddr*)&client_addr, &client_len)) != -1) { // Keep the server running
 
         printf("New client connected\n");
-     
 
-        // Receive a message from the client
-        request = network_receive(client_socket);
+        while (1) {
+
+            // Receive a message from the client
+            request = network_receive(client_socket);
         if (!request) {
             perror("Failed to receive message from client");
             close(client_socket);
-            continue;
+            break;
         }
 
         // Process the message received on table_skel
-        response = invoke(request, table);
-        message_t__free_unpacked(request, NULL);  // Free the memory of the received request
+        int response = invoke(request, table);
 
         if (response < 0) {
             perror("Failed to process client message");
             close(client_socket);
-            continue;
+            break;
         }
 
         // Send the response to the client
-        if (network_send(client_socket, response) < 0) {
+        if (network_send(client_socket, request) < 0) {
             perror("Failed to send response to client");
         }
         message_t__free_unpacked(response, NULL);  // Free the memory of the generated response
 
+        }
+
         // Close client socket
+        close(client_socket);
         
     }
 
@@ -97,8 +100,6 @@ MessageT *network_receive(int client_socket) {
     int16_t message_size;
     bytes_read = read_all(client_socket, &message_size, sizeof(int16_t));
 
-    printf("Received message size: %d\n", message_size);
-
     if (bytes_read < sizeof(int16_t) || message_size <= 0) {
         perror("Failed to read the size of the incoming message or invalid size");
         return NULL;
@@ -111,15 +112,10 @@ MessageT *network_receive(int client_socket) {
         return NULL;
     }
 
-    printf("Going to read serialized message\n");
-
     // Read message into the buffer
     bytes_read = read_all(client_socket, buffer, ntohs(message_size));
 
-    printf("Received serialized message\n");
-
     if (bytes_read != htons(message_size)) {
-        printf("Caiu nesta merda\n");
         perror("Failed to read the full message from the client");
         free(buffer);
         return NULL;
@@ -157,23 +153,19 @@ int network_send(int client_socket, MessageT *msg) {
     message_t__pack(msg, buffer);
 
     // Send the size of the message (2 bytes)
-    int16_t size_to_send = (int16_t) message_size;
+    int16_t size_to_send = htons(message_size);
     if (write_all(client_socket, &size_to_send, sizeof(int16_t)) != sizeof(int16_t)) {
         perror("Failed to send the size of the message");
         free(buffer);
         return -1;
     }
 
-    printf("Sent message size: %d\n", size_to_send);
-
     // Send message
-    if (write(client_socket, buffer, message_size) != message_size) {
+    if (write_all(client_socket, buffer, message_size) != message_size) {
         perror("Failed to send the serialized message");
         free(buffer);
         return -1;
     }
-
-    printf("Sent serialized message\n");
 
     free(buffer);
     return 0;
