@@ -95,8 +95,6 @@ MessageT *network_send_receive(struct rtable_t *rtable, MessageT *msg) {
         return NULL;
     }
 
-    printf("Sent message size: %d\n", len);
-
     // Send serialized message
     nbytes = write_all(sockfd, buf, len);
     free(buf);  // Free buffer
@@ -104,7 +102,6 @@ MessageT *network_send_receive(struct rtable_t *rtable, MessageT *msg) {
         printf("Error sending serialized message\n");
         return NULL;
     }
-    printf("Sent serialized message\n");
 
     // Receive response size (2 bytes)
     if (read_all(sockfd, &size, sizeof(short)) != sizeof(short)) {
@@ -113,7 +110,6 @@ MessageT *network_send_receive(struct rtable_t *rtable, MessageT *msg) {
     }
 
     len = ntohs(size);
-    printf("Received response size: %d\n", len);
 
     // Receive serialized response
     buf = malloc(len);
@@ -126,7 +122,6 @@ MessageT *network_send_receive(struct rtable_t *rtable, MessageT *msg) {
         free(buf);
         return NULL;
     }
-    printf("Received serialized response\n");
 
     // Deserialize response
     MessageT *response = message_t__unpack(NULL, len, buf);
