@@ -59,25 +59,24 @@ int main(int argc, char **argv) {
         char *command_name = strtok(command, " ");
         char *command_key = strtok(NULL, " ");
         char *command_data = strtok(NULL, " ");
-
         if (command_name == NULL)
             printf("Error parsing command\n");
             
         // Execute command
         if (strcmp(command_name, "put") == 0) {
-            if (command_key == NULL || command_data == NULL)
+            if (command_key == NULL || command_data == NULL) {
                 printf("Usage: put <key> <data>\n");
-
-            printf("Executing command: put %s %s\n", command_key, command_data);
+                continue;
+            }
             struct data_t *data = data_create(strlen(command_data), command_data);
             struct entry_t *entry = entry_create(command_key, data);
             int put = rtable_put(rtable, entry);
-            if (put < 0)
+            if (put < 0) {
                 printf("Error executing command\n");
-
-            printf("Object put\n");
-
-        } else if (strcmp(command_name, "get") == 0) {
+                continue;
+            }
+        } 
+        else if (strcmp(command_name, "get") == 0) {
             if (command_key == NULL) {
                 printf("Usage: get <key>\n");
                 continue;
@@ -87,8 +86,9 @@ int main(int argc, char **argv) {
                 printf("Error executing command\n");
                 continue;
             }
-            printf("Data: %s\n", data->data);
-        } else if (strcmp(command_name, "del") == 0) {
+            printf("Data: %s\n", (char *) data->data);
+        } 
+        else if (strcmp(command_name, "del") == 0) {
             if (command_key == NULL) {
                 printf("Usage: del <key>\n");
                 continue;
@@ -98,53 +98,53 @@ int main(int argc, char **argv) {
                 printf("Error executing command\n");
                 continue;
             }
-            printf("Object deleted\n");
-        } else if (strcmp(command_name, "size") == 0) {
+            printf("Entry removed\n");
+        } 
+        else if (strcmp(command_name, "size") == 0) {
             int size = rtable_size(rtable);
             if (size < 0) {
                 printf("Error executing command\n");
                 continue;
             }
             printf("Table size: %d\n", size);
-        } else if (strcmp(command_name, "getkeys") == 0) {
+        } 
+        else if (strcmp(command_name, "getkeys") == 0) {
             char **keys = rtable_get_keys(rtable);
             if (keys == NULL) {
                 printf("Error executing command\n");
                 continue;
             }
-            printf("Keys:\n");
             for (int i = 0; keys[i] != NULL; i++) {
                 printf("%s\n", keys[i]);
             }
             rtable_free_keys(keys);
-        } else if (strcmp(command_name, "gettable") == 0) {
+        } 
+        else if (strcmp(command_name, "gettable") == 0) {
             struct entry_t **entries = rtable_get_table(rtable);
             if (entries == NULL) {
                 printf("Error executing command\n");
                 continue;
             }
-            printf("Entries:\n");
             for (int i = 0; entries[i] != NULL; i++) {
-                printf("Key: %s\n", entries[i]->key);
-                printf("Data: %s\n", entries[i]->value->data);
+                printf("%s :: %s\n", entries[i]->key, (char *) entries[i]->value->data);
             }
-            rtable_free_entries(entries);
-            
-        } else if (strcmp(command_name, "quit") == 0) {
-            printf("Executing command: quit\n");
+            rtable_free_entries(entries);       
+        } 
+        else if (strcmp(command_name, "quit") == 0) {
+            int cls = rtable_disconnect(rtable);
+            if(cls < 0){
+                perror("Error closing connection to server");
+                break;
+            }
+            printf("Closing client...\n");
             break;
-        } else {
-            printf("Unknown command\n");
+        } 
+        else {
+            printf("Invalid command\n");
+            printf("Usage: put <keys> <value> | get <keys> | del <key> | size | getkeys | gettable | quit\n");
             continue;
         }
     }
-    
-
-    int cls = rtable_disconnect(rtable);
-
-    printf("Closing client...\n");
-  
-    
 
     return 0;
 }
