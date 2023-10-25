@@ -213,9 +213,6 @@ int rtable_size(struct rtable_t *rtable) {
     msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
 
     MessageT *response = network_send_receive(rtable, msg);
-    if (msg->key != NULL) {
-        free(msg->key);
-    }
     free(msg);
 
     if (response == NULL) {
@@ -227,8 +224,8 @@ int rtable_size(struct rtable_t *rtable) {
         return -1;
     }
 
-    if (response->opcode == MESSAGE_T__OPCODE__OP_SIZE) {
-        int size = response->n_entries;
+    if (response->opcode == MESSAGE_T__OPCODE__OP_SIZE + 1) {
+        int size = response->result;
         message_t__free_unpacked(response, NULL);
         return size;
     } else {
