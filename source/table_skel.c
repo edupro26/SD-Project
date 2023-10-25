@@ -47,7 +47,7 @@ int invoke(MessageT *msg, struct table_t *table) {
                 int result = table_put(table, msg->entry->key, data);
                 data_destroy(data);
                 if (result == 0) {
-                    msg->opcode = MESSAGE_T__OPCODE__OP_PUT;
+                    msg->opcode = MESSAGE_T__OPCODE__OP_PUT + 1;
                     msg->c_type = MESSAGE_T__C_TYPE__CT_RESULT;
                     msg->result = 0;
                 } else {
@@ -62,10 +62,17 @@ int invoke(MessageT *msg, struct table_t *table) {
                 struct data_t *result_data = table_get(table, msg->key);
 
                 if (result_data) {
-                    msg->opcode = MESSAGE_T__OPCODE__OP_GET;
+                    msg->opcode = MESSAGE_T__OPCODE__OP_GET+1;
                     msg->c_type = MESSAGE_T__C_TYPE__CT_VALUE;
-                    msg->value.data = result_data->data;
-                    msg->value.len = result_data->datasize;
+                    msg->value.data = malloc(result_data->datasize);
+                    if (!msg->value.data) {
+                        msg->opcode = MESSAGE_T__OPCODE__OP_ERROR;
+                        msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
+                        break;
+                    } else {
+                        memcpy(msg->value.data, result_data->data, result_data->datasize);
+                        msg->value.len = result_data->datasize;
+                    }
                     data_destroy(result_data);
                 } else {
                     msg->opcode = MESSAGE_T__OPCODE__OP_ERROR;
@@ -78,7 +85,7 @@ int invoke(MessageT *msg, struct table_t *table) {
             if (msg->c_type == MESSAGE_T__C_TYPE__CT_KEY) {
                 int result = table_remove(table, msg->key);
                 if (result == 0) {
-                    msg->opcode = MESSAGE_T__OPCODE__OP_DEL;
+                    msg->opcode = MESSAGE_T__OPCODE__OP_DEL+1;
                     msg->c_type = MESSAGE_T__C_TYPE__CT_RESULT;
                     msg->result = 0;
                 } else if (result == 1) {
@@ -97,7 +104,7 @@ int invoke(MessageT *msg, struct table_t *table) {
             {
             int size = table_size(table);
             if (size >= 0) {
-                msg->opcode = MESSAGE_T__OPCODE__OP_SIZE;
+                msg->opcode = MESSAGE_T__OPCODE__OP_SIZE+1;
                 msg->c_type = MESSAGE_T__C_TYPE__CT_RESULT;
                 msg->result = size;
             } else {
