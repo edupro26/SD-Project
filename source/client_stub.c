@@ -321,11 +321,17 @@ struct entry_t **rtable_get_table(struct rtable_t *rtable) {
         }
 
         for (int i = 0; i < response->n_entries; i++) {
-            entries[i] = (struct entry_t *)malloc(sizeof(struct entry_t));
-            entry_t__init(entries[i]);
+            entries[i] = (struct entry_t *) malloc(sizeof(struct entry_t));
+            //entry_t__init(entries[i]);
 
             entries[i]->key = strdup(response->entries[i]->key);
-            entries[i]->value = data_create(response->entries[i]->value.data, response->entries[i]->value.len);
+            entries[i]->value = (struct data_t *)malloc(sizeof(struct data_t));
+            entries[i]->value->data = malloc(response->entries[i]->value.len);
+            entries[i]->value->datasize = response->entries[i]->value.len;
+            memcpy(entries[i]->value->data, response->entries[i]->value.data, entries[i]->value->datasize);
+            if (entries[i]->value == NULL) return NULL;
+            if (entries[i]->value->data == NULL) return NULL;
+
         }
 
         entries[response->n_entries] = NULL;

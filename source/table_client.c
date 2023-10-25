@@ -123,6 +123,18 @@ int main(int argc, char **argv) {
             rtable_free_keys(keys);
         } else if (strcmp(command_name, "gettable") == 0) {
             printf("Executing command: gettable\n");
+            struct entry_t **entries = rtable_get_table(rtable);
+            if (entries == NULL) {
+                printf("Error executing command\n");
+                continue;
+            }
+            printf("Entries:\n");
+            for (int i = 0; entries[i] != NULL; i++) {
+                printf("Key: %s\n", entries[i]->key);
+                printf("Data: %s\n", entries[i]->value->data);
+            }
+            rtable_free_entries(entries);
+            
         } else if (strcmp(command_name, "quit") == 0) {
             printf("Executing command: quit\n");
             break;

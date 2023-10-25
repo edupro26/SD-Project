@@ -164,14 +164,26 @@ int invoke(MessageT *msg, struct table_t *table) {
                     return -1;
                 }
                 entry_t__init(entry);
-                entry->key = strdup(keys[i]);
-                entry->value.data = data->data; 
-                entry->value.len = data->datasize;  
+                entry->key = strdup(keys[i]); 
+                entry->value.data = malloc(data->datasize);
+                    if (!entry->value.data) {
+                        msg->opcode = MESSAGE_T__OPCODE__OP_ERROR;
+                        msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
+                        break;
+                    } else {
+                        memcpy(entry->value.data, data->data, data->datasize);
+                        entry->value.len = data->datasize;  
+                        msg->entries[i] = entry;
+                    }
+                    data_destroy(data);
+                
+                
 
-                msg->entries[i] = entry;
+                
             }
             
             table_free_keys(keys);
+            msg->n_entries = num_keys;
             msg->opcode = MESSAGE_T__OPCODE__OP_GETTABLE+1;
             msg->c_type = MESSAGE_T__C_TYPE__CT_TABLE;
             return 0;
