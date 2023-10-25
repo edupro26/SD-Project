@@ -82,7 +82,6 @@ int main(int argc, char **argv) {
                 printf("Usage: get <key>\n");
                 continue;
             }
-            printf("Executing command: get %s\n", command_key);
             struct data_t *data = rtable_get(rtable, command_key);
             if (data == NULL) {
                 printf("Error executing command\n");
@@ -94,7 +93,6 @@ int main(int argc, char **argv) {
                 printf("Usage: del <key>\n");
                 continue;
             }
-            printf("Executing command: del %s\n", command_key);
             int del = rtable_del(rtable, command_key);
             if (del < 0) {
                 printf("Error executing command\n");
@@ -102,7 +100,6 @@ int main(int argc, char **argv) {
             }
             printf("Object deleted\n");
         } else if (strcmp(command_name, "size") == 0) {
-            printf("Executing command: size\n");
             int size = rtable_size(rtable);
             if (size < 0) {
                 printf("Error executing command\n");
@@ -110,7 +107,6 @@ int main(int argc, char **argv) {
             }
             printf("Table size: %d\n", size);
         } else if (strcmp(command_name, "getkeys") == 0) {
-            printf("Executing command: getkeys\n");
             char **keys = rtable_get_keys(rtable);
             if (keys == NULL) {
                 printf("Error executing command\n");
@@ -122,7 +118,6 @@ int main(int argc, char **argv) {
             }
             rtable_free_keys(keys);
         } else if (strcmp(command_name, "gettable") == 0) {
-            printf("Executing command: gettable\n");
             struct entry_t **entries = rtable_get_table(rtable);
             if (entries == NULL) {
                 printf("Error executing command\n");
