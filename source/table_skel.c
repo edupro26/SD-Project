@@ -48,7 +48,7 @@ int invoke(MessageT *msg, struct table_t *table) {
                 data_destroy(data);
                 if (result == 0) {
                     msg->opcode = MESSAGE_T__OPCODE__OP_PUT + 1;
-                    msg->c_type = MESSAGE_T__C_TYPE__CT_RESULT;
+                    msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
                     msg->result = 0;
                 } else {
                     msg->opcode = MESSAGE_T__OPCODE__OP_ERROR;
@@ -86,12 +86,13 @@ int invoke(MessageT *msg, struct table_t *table) {
                 int result = table_remove(table, msg->key);
                 if (result == 0) {
                     msg->opcode = MESSAGE_T__OPCODE__OP_DEL+1;
-                    msg->c_type = MESSAGE_T__C_TYPE__CT_RESULT;
+                    msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
                     msg->result = 0;
                 } else if (result == 1) {
                     // Entry not found
+                    // TODO - Check if this is correct
                     msg->opcode = MESSAGE_T__OPCODE__OP_DEL;
-                    msg->c_type = MESSAGE_T__C_TYPE__CT_RESULT;
+                    msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
                     msg->result = 1;
                 } else {
                     msg->opcode = MESSAGE_T__OPCODE__OP_ERROR;
@@ -122,7 +123,7 @@ int invoke(MessageT *msg, struct table_t *table) {
                 int count;
                 for (count = 0; keys[count] != NULL; count++);
                 
-                msg->opcode = MESSAGE_T__OPCODE__OP_GETKEYS;
+                msg->opcode = MESSAGE_T__OPCODE__OP_GETKEYS+1;
                 msg->c_type = MESSAGE_T__C_TYPE__CT_KEYS;
                 msg->keys = keys;
                 msg->n_keys = count;
@@ -169,14 +170,18 @@ int invoke(MessageT *msg, struct table_t *table) {
 
                 msg->entries[i] = entry;
             }
-
+            
             table_free_keys(keys);
+            msg->opcode = MESSAGE_T__OPCODE__OP_GETTABLE+1;
+            msg->c_type = MESSAGE_T__C_TYPE__CT_TABLE;
             return 0;
         
             }
             break;
 
         default:
+            msg->opcode = MESSAGE_T__OPCODE__OP_ERROR;
+            msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
             return -1;  // Unknown operation
     }
 
