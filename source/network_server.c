@@ -105,7 +105,7 @@ MessageT *network_receive(int client_socket) {
     }
 
     // Allocate a buffer based on the size of the incoming message
-    uint8_t *buffer = malloc(message_size);
+    uint8_t *buffer = malloc(ntohs(message_size));
     if (!buffer) {
         perror("Failed to allocate memory for the incoming message");
         return NULL;
@@ -114,11 +114,11 @@ MessageT *network_receive(int client_socket) {
     printf("Going to read serialized message\n");
 
     // Read message into the buffer
-    bytes_read = read_all(client_socket, buffer, message_size);
+    bytes_read = read_all(client_socket, buffer, ntohs(message_size));
 
     printf("Received serialized message\n");
 
-    if (bytes_read != message_size) {
+    if (bytes_read != htons(message_size)) {
         printf("Caiu nesta merda\n");
         perror("Failed to read the full message from the client");
         free(buffer);
