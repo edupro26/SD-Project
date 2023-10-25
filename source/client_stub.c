@@ -112,7 +112,7 @@ int rtable_put(struct rtable_t *rtable, struct entry_t *entry){
         return -1;
     }
     
-    if (response->opcode == MESSAGE_T__OPCODE__OP_PUT + 1) {
+    if (response->opcode == MESSAGE_T__OPCODE__OP_PUT + 1 && response->c_type == MESSAGE_T__C_TYPE__CT_NONE) {
         message_t__free_unpacked(response, NULL);
         return 0;
     } 
@@ -150,7 +150,7 @@ struct data_t *rtable_get(struct rtable_t *rtable, char *key) {
         return NULL;
     }
 
-    if (response->c_type == MESSAGE_T__C_TYPE__CT_VALUE) {
+    if (response->opcode == MESSAGE_T__OPCODE__OP_GET+1 && response->c_type == MESSAGE_T__C_TYPE__CT_VALUE) {
         // Returns the data from the response
         struct data_t *data = (struct data_t *)malloc(sizeof(struct data_t));
         data->data = malloc(response->value.len);
@@ -193,7 +193,7 @@ int rtable_del(struct rtable_t *rtable, char *key) {
         return -1;
     }
 
-    if (response->opcode == MESSAGE_T__OPCODE__OP_DEL + 1) {
+    if (response->opcode == MESSAGE_T__OPCODE__OP_DEL + 1 && response->c_type == MESSAGE_T__C_TYPE__CT_NONE) {
         message_t__free_unpacked(response, NULL);
         return 0;
     } else {
@@ -226,7 +226,7 @@ int rtable_size(struct rtable_t *rtable) {
         return -1;
     }
 
-    if (response->opcode == MESSAGE_T__OPCODE__OP_SIZE + 1) {
+    if (response->opcode == MESSAGE_T__OPCODE__OP_SIZE + 1 && response->c_type == MESSAGE_T__C_TYPE__CT_RESULT) {
         int size = response->result;
         message_t__free_unpacked(response, NULL);
         return size;
@@ -260,7 +260,7 @@ char **rtable_get_keys(struct rtable_t *rtable) {
         return NULL;
     }
 
-    if (response->opcode == MESSAGE_T__OPCODE__OP_GETKEYS &&
+    if (response->opcode == MESSAGE_T__OPCODE__OP_GETKEYS+1 &&
         response->c_type == MESSAGE_T__C_TYPE__CT_KEYS) {
         // Returns the keys from the response
         char **keys = (char **)malloc(sizeof(char *) * (response->n_keys + 1));
@@ -312,7 +312,7 @@ struct entry_t **rtable_get_table(struct rtable_t *rtable) {
         message_t__free_unpacked(response, NULL);
         return NULL;
     }
-    if (response->opcode == MESSAGE_T__OPCODE__OP_GETTABLE &&
+    if (response->opcode == MESSAGE_T__OPCODE__OP_GETTABLE+1 &&
         response->c_type == MESSAGE_T__C_TYPE__CT_TABLE) {
         struct entry_t **entries = (struct entry_t **)malloc(sizeof(struct entry_t *) * (response->n_entries + 1));
         if (entries == NULL) {
