@@ -107,16 +107,19 @@ int rtable_put(struct rtable_t *rtable, struct entry_t *entry){
         message_t__free_unpacked(response, NULL);
         return -1;
     }
-
-    // Free message
     if (response == NULL) {
         message_t__free_unpacked(response, NULL);
         return -1;
     }
-
-    message_t__free_unpacked(msg, NULL);
-    message_t__free_unpacked(response, NULL);
-    return 0;
+    
+    if (response->opcode == MESSAGE_T__OPCODE__OP_PUT + 1) {
+        message_t__free_unpacked(response, NULL);
+        return 0;
+    } 
+    else {
+        message_t__free_unpacked(response, NULL);
+        return -1;
+    }
 }
 
 struct data_t *rtable_get(struct rtable_t *rtable, char *key) {
