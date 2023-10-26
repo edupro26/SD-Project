@@ -1,7 +1,7 @@
 
 # TODO
 
-- Fix problem with value returned by get <entry> in linux
+- Add prints to when executing getkeys/gettable but table is empty
 - Run server and client with valgrind
 - Catch signal
 - End client_stub
