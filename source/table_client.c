@@ -87,6 +87,7 @@ int main(int argc, char **argv) {
                 continue;
             }
             printf("Data: %s\n", (char *) data->data);
+            data_destroy(data);
         } 
         else if (strcmp(command_name, "del") == 0) {
             if (command_key == NULL) {

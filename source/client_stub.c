@@ -12,7 +12,7 @@ Tiago Oliveira - 54979
 #include <string.h>
 #include <stdio.h>
 
-#include <data.h>
+#include "data.h"
 #include "client_stub-private.h"
 
 
@@ -123,9 +123,8 @@ int rtable_put(struct rtable_t *rtable, struct entry_t *entry){
 }
 
 struct data_t *rtable_get(struct rtable_t *rtable, char *key) {
-    if (rtable == NULL || key == NULL) {
+    if (rtable == NULL || key == NULL)
         return NULL;
-    }
 
     MessageT *msg = (MessageT *)malloc(sizeof(MessageT));
     message_t__init(msg);
@@ -136,27 +135,21 @@ struct data_t *rtable_get(struct rtable_t *rtable, char *key) {
     msg->key = strdup(key);
 
     MessageT *response = network_send_receive(rtable, msg);
-    if (msg->key != NULL) {
-        free(msg->key);
-    }
     free(msg);
 
     if (response == NULL) {
+        message_t__free_unpacked(response, NULL);
         return NULL;
     }
-
     if (response->opcode == MESSAGE_T__OPCODE__OP_ERROR) {
         message_t__free_unpacked(response, NULL);
         return NULL;
     }
 
     if (response->opcode == MESSAGE_T__OPCODE__OP_GET+1 && response->c_type == MESSAGE_T__C_TYPE__CT_VALUE) {
-        // Returns the data from the response
-        struct data_t *data = (struct data_t *)malloc(sizeof(struct data_t));
-        data->data = malloc(response->value.len);
-        data->datasize = response->value.len;
-        memcpy(data->data, response->value.data, data->datasize);
-
+        int data_size = response->value.len;
+        char *data_value = strdup((char *)response->value.data);
+        struct data_t *data = data_create(data_size, data_value);
         message_t__free_unpacked(response, NULL);
         return data;
     } else {
