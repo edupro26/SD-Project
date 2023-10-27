@@ -81,32 +81,30 @@ int network_main_loop(int listening_socket, struct table_t *table) {
 
             // Receive a message from the client
             request = network_receive(client_socket);
-        if (!request) {
-            perror("Failed to receive message from client");
+            if (request == NULL) {
+                close(client_socket);
+                break;
+            }
+
+            // Process the message received on table_skel
+            int response = invoke(request, table);
+
+            if (response < 0) {
+                perror("Failed to process client message");
+                close(client_socket);
+                break;
+            }
+
+            // Send the response to the client
+            if (network_send(client_socket, request) < 0) {
+                perror("Failed to send response to client");
+            }
+            message_t__free_unpacked(response, NULL);  // Free the memory of the generated response
+
+            }
+
+            // Close client socket
             close(client_socket);
-            break;
-        }
-
-        // Process the message received on table_skel
-        int response = invoke(request, table);
-
-        if (response < 0) {
-            perror("Failed to process client message");
-            close(client_socket);
-            break;
-        }
-
-        // Send the response to the client
-        if (network_send(client_socket, request) < 0) {
-            perror("Failed to send response to client");
-        }
-        message_t__free_unpacked(response, NULL);  // Free the memory of the generated response
-
-        }
-
-        // Close client socket
-        close(client_socket);
-        
     }
 
     return 0;
@@ -119,10 +117,8 @@ MessageT *network_receive(int client_socket) {
     int16_t message_size;
     bytes_read = read_all(client_socket, &message_size, sizeof(int16_t));
 
-    if (bytes_read < sizeof(int16_t) || message_size <= 0) {
-        perror("Failed to read the size of the incoming message or invalid size");
+    if (bytes_read < sizeof(int16_t) || message_size <= 0)
         return NULL;
-    }
 
     // Allocate a buffer based on the size of the incoming message
     uint8_t *buffer = malloc(ntohs(message_size));
