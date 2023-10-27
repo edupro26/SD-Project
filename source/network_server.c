@@ -75,7 +75,7 @@ int network_main_loop(int listening_socket, struct table_t *table) {
 
     while ((client_socket = accept(listening_socket, (struct sockaddr*)&client_addr, &client_len)) != -1) { // Keep the server running
 
-        printf("New client connected\n");
+        printf("Client connection established\n");
 
         while (1) {
 
@@ -101,16 +101,13 @@ int network_main_loop(int listening_socket, struct table_t *table) {
             }
             message_t__free_unpacked(response, NULL);  // Free the memory of the generated response
 
-            }
+        }
 
-        printf("Client disconnected\n");
-
-            // Close client socket
+        // Close client socket
         close(client_socket);
-
+        printf("Client connection closed\n");
+        printf("Waiting for connections...\n");
     }
-
-    
 
     return 0;
 }

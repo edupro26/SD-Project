@@ -48,6 +48,7 @@ int main(int argc, char **argv) {
     }
 
     printf("Server started\n");
+    printf("Waiting for connections...\n");
 
     // Initialize table
     struct table_t *table = table_skel_init(n_lists);
