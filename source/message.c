@@ -21,7 +21,7 @@ ssize_t read_all(int fd, void *buf, size_t count) {
             if (errno == EINTR) continue; 
             return -1; 
         }
-        if (result == 0) break; 
+        if (result == 0) return result;
         bytes_read += result;
     }
     return bytes_read;
@@ -36,7 +36,7 @@ ssize_t write_all(int fd, const void *buf, size_t count) {
             if (errno == EINTR) continue; 
             return -1; 
         }
-        if (result == 0) break; 
+        if (result == 0) return result;
         bytes_written += result;
     }
     return bytes_written;
