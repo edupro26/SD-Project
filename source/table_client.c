@@ -39,8 +39,6 @@ int main(int argc, char **argv) {
 
     struct rtable_t *rtable = rtable_connect(argv[1]);
     if (rtable == NULL) {
-        printf("Error connecting to server\n");
-        printf("Usage: ./table_client <server>:<port>\n");
         return -1;
     }
 
