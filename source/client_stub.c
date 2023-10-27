@@ -25,6 +25,7 @@ struct rtable_t *rtable_connect(char *address_port) {
     char *address = strtok(address_port, ":");
     char *port = strtok(NULL, ":");
     if (address == NULL || port == NULL) {
+        printf("Usage: ./table_client <server>:<port>\n");
         return NULL;
     }
 
@@ -40,6 +41,7 @@ struct rtable_t *rtable_connect(char *address_port) {
 
     if (network_connect(rtable) < 0) {
         perror("Error connecting to server.");
+        return NULL;
     }
 
     if (rtable->sockfd < 0) {
