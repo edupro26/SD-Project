@@ -8,3 +8,6 @@
 - Make sure network whiles are well made
 - Makefile observer headers changes
 - Implement connection by hostname
+- Fix table bug when removing a entry
+- Catch the ctrl-c signal to close server without leaks
+- Print when client connection is closed
