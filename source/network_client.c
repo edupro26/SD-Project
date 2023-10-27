@@ -32,8 +32,8 @@ int network_connect(struct rtable_t *rtable) {
         return -1;
     }
 
-    // Verify if server address or port are NULL
-    if (rtable->server_address == NULL || rtable->server_port == NULL) {
+    // Verify if server address or port 
+    if (rtable->server_address == NULL || rtable->server_port < 0) {
         return -1;
     }
 
@@ -89,8 +89,7 @@ MessageT *network_send_receive(struct rtable_t *rtable, MessageT *msg) {
     // Send message size (2 bytes)
     int16_t size = htons(len);
     if (write_all(sockfd, &size, sizeof(short)) != sizeof(short)) {
-        perror('Error sending message size');
-        printf("errno: %d\n", errno);
+        perror("Error sending message size");
         free(buf);
         return NULL;
     }

@@ -24,8 +24,8 @@ int main(int argc, char **argv) {
     }
 
     // Verify if first argument is a valid port
-    short port = atoi(argv[1]);
-    if (port <= 1023 || port >= 65536) {
+    unsigned short port = atoi(argv[1]);
+    if (port <= 1023) {
         printf("Invalid port\n");
         printf("Usage: ./table_server <port> <n_lists>\n");
         return -1;

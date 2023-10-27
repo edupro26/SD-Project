@@ -259,7 +259,7 @@ char **rtable_get_keys(struct rtable_t *rtable) {
         response->c_type == MESSAGE_T__C_TYPE__CT_KEYS) {
         // Returns the keys from the response
         char **keys = (char **)malloc(sizeof(char *) * (response->n_keys + 1));
-        for (int i = 0; i < response->n_keys; i++) {
+        for (int i = 0; i < (int)response->n_keys; i++) {
             keys[i] = strdup(response->keys[i]);
         }
         keys[response->n_keys] = NULL;
@@ -315,7 +315,7 @@ struct entry_t **rtable_get_table(struct rtable_t *rtable) {
             return NULL;
         }
 
-        for (int i = 0; i < response->n_entries; i++) {
+        for (int i = 0; i < (int)response->n_entries; i++) {
             entries[i] = (struct entry_t *) malloc(sizeof(struct entry_t));
             //entry_t__init(entries[i]);
 
