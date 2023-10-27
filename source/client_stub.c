@@ -76,18 +76,15 @@ int rtable_put(struct rtable_t *rtable, struct entry_t *entry){
         return -1;
 
     // Create message
-    MessageT *msg = (MessageT *) malloc(sizeof(MessageT));
-    if (msg == NULL)
-        return -1;
-
-    message_t__init(msg);
-    msg->opcode = MESSAGE_T__OPCODE__OP_PUT;
-    msg->c_type = MESSAGE_T__C_TYPE__CT_ENTRY;
+    MessageT msg;
+    message_t__init(&msg);
+    msg.opcode = MESSAGE_T__OPCODE__OP_PUT;
+    msg.c_type = MESSAGE_T__C_TYPE__CT_ENTRY;
 
     // Create entry
     EntryT *entry_msg = (EntryT *) malloc(sizeof(EntryT));
     if (entry_msg == NULL) {
-        message_t__free_unpacked(msg, NULL);
+        message_t__free_unpacked(&msg, NULL);
         return -1;
     }
     entry_t__init(entry_msg);
@@ -99,10 +96,11 @@ int rtable_put(struct rtable_t *rtable, struct entry_t *entry){
     data.data = malloc(entry->value->datasize);
     memcpy(data.data, entry->value->data, entry->value->datasize);
     entry_msg->value = data;
-    msg->entry = entry_msg;
+    msg.entry = entry_msg;
 
     // Send message
-    MessageT *response = network_send_receive(rtable, msg);
+    MessageT *response = network_send_receive(rtable, &msg);
+    free(data.data);
 
     // Check response
     if (response->opcode == MESSAGE_T__OPCODE__OP_ERROR) {
@@ -128,16 +126,14 @@ struct data_t *rtable_get(struct rtable_t *rtable, char *key) {
     if (rtable == NULL || key == NULL)
         return NULL;
 
-    MessageT *msg = (MessageT *)malloc(sizeof(MessageT));
-    message_t__init(msg);
+    MessageT msg;// = (MessageT *)malloc(sizeof(MessageT));
+    message_t__init(&msg);
+    msg.opcode = MESSAGE_T__OPCODE__OP_GET;
+    msg.c_type = MESSAGE_T__C_TYPE__CT_KEY;
+    msg.key = strdup(key);
 
     // Sends the request
-    msg->opcode = MESSAGE_T__OPCODE__OP_GET;
-    msg->c_type = MESSAGE_T__C_TYPE__CT_KEY;
-    msg->key = strdup(key);
-
-    MessageT *response = network_send_receive(rtable, msg);
-    free(msg);
+    MessageT *response = network_send_receive(rtable, &msg);
 
     if (response == NULL) {
         message_t__free_unpacked(response, NULL);
