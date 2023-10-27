@@ -7,3 +7,4 @@
 - End client_stub
 - Make sure network whiles are well made
 - Makefile observer headers changes
+- Implement connection by hostname
