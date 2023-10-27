@@ -30,9 +30,18 @@ int network_server_init(short port) {
     int opt = 1;  // option for setsockopt
     struct sockaddr_in address;
 
+    
+
     // Create socket
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         perror("socket failed");
+        return -1;
+    }
+
+    // Set socket options to reuse the address
+    if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
+        perror("setsockopt");
+        close(sockfd);
         return -1;
     }
 
