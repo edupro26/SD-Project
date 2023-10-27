@@ -15,6 +15,10 @@ Tiago Oliveira - 54979
 
 #include "client_stub-private.h"
 #include "entry.h"
+#include "signal-private.h"
+
+// Iniciates the int terminate flag to 0, that is going to be used in the signal handler
+int terminate = 0;
 
 /*
     Usage:
@@ -31,6 +35,9 @@ Tiago Oliveira - 54979
 
 */
 int main(int argc, char **argv) {
+    // Sets the signal handler
+    ctrlC_handler(&terminate);
+
 
     if (argc != 2) {
         printf("Usage: ./table_client <server>:<port>\n");
