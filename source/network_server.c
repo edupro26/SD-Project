@@ -104,10 +104,15 @@ int network_main_loop(int listening_socket, struct table_t *table) {
 
         }
 
+        printf("Client disconnected\n");
+
         // Close client socket
         close(client_socket);
+
         
     }
+
+    
 
     return 0;
 }
