@@ -7,3 +7,4 @@
 - End client_stub
 - Make sure network whiles are well made
 - Implement setsockopt to avoid already in use port errors
+- Makefile observer headers changes
