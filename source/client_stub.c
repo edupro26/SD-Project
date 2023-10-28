@@ -80,27 +80,15 @@ int rtable_put(struct rtable_t *rtable, struct entry_t *entry){
     message_t__init(&msg);
     msg.opcode = MESSAGE_T__OPCODE__OP_PUT;
     msg.c_type = MESSAGE_T__C_TYPE__CT_ENTRY;
+    msg.key = entry->key;
+    msg.value.len = entry->value->datasize;
+    msg.value.data = entry->value->data;
 
-    // Create entry
-    EntryT *entry_msg = (EntryT *) malloc(sizeof(EntryT));
-    if (entry_msg == NULL) {
-        message_t__free_unpacked(&msg, NULL);
-        return -1;
-    }
-    entry_t__init(entry_msg);
-    entry_msg->key = malloc(strlen(entry->key)+1);
-    strcpy(entry_msg->key, entry->key);
-    
-    ProtobufCBinaryData data;
-    data.len = entry->value->datasize;
-    data.data = malloc(entry->value->datasize);
-    memcpy(data.data, entry->value->data, entry->value->datasize);
-    entry_msg->value = data;
-    msg.entry = entry_msg;
-
-    // Send message
+    // Sends the request
     MessageT *response = network_send_receive(rtable, &msg);
-    free(data.data);
+
+    free(entry->value);
+    free(entry);
 
     // Check response
     if (response->opcode == MESSAGE_T__OPCODE__OP_ERROR) {
@@ -130,11 +118,12 @@ struct data_t *rtable_get(struct rtable_t *rtable, char *key) {
     message_t__init(&msg);
     msg.opcode = MESSAGE_T__OPCODE__OP_GET;
     msg.c_type = MESSAGE_T__C_TYPE__CT_KEY;
-    msg.key = strdup(key);
+    msg.key = key;
 
     // Sends the request
     MessageT *response = network_send_receive(rtable, &msg);
 
+    // Check response
     if (response == NULL) {
         message_t__free_unpacked(response, NULL);
         return NULL;
@@ -145,9 +134,9 @@ struct data_t *rtable_get(struct rtable_t *rtable, char *key) {
     }
 
     if (response->opcode == MESSAGE_T__OPCODE__OP_GET+1 && response->c_type == MESSAGE_T__C_TYPE__CT_VALUE) {
-        int data_size = response->value.len;
-        char *data_value = strdup((char *)response->value.data);
-        struct data_t *data = data_create(data_size, data_value);
+        struct data_t *data_temp = data_create(response->value.len, response->value.data);
+        struct data_t *data = data_dup(data_temp);
+        free(data_temp);
         message_t__free_unpacked(response, NULL);
         return data;
     } else {
@@ -161,24 +150,19 @@ int rtable_del(struct rtable_t *rtable, char *key) {
         return -1;
     }
 
-    MessageT *msg = (MessageT *)malloc(sizeof(MessageT));
-    message_t__init(msg);
+    MessageT msg;
+    message_t__init(&msg);
+    msg.opcode = MESSAGE_T__OPCODE__OP_DEL;
+    msg.c_type = MESSAGE_T__C_TYPE__CT_KEY;
+    msg.key = key;
 
     // Sends the request
-    msg->opcode = MESSAGE_T__OPCODE__OP_DEL;
-    msg->c_type = MESSAGE_T__C_TYPE__CT_KEY;
-    msg->key = strdup(key);
+    MessageT *response = network_send_receive(rtable, &msg);
 
-    MessageT *response = network_send_receive(rtable, msg);
-    if (msg->key != NULL) {
-        free(msg->key);
-    }
-    free(msg);
-
+    // Check response
     if (response == NULL) {
         return -1;
     }
-
     if (response->opcode == MESSAGE_T__OPCODE__OP_ERROR) {
         message_t__free_unpacked(response, NULL);
         return -1;
