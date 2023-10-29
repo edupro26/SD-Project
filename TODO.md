@@ -1,8 +1,6 @@
 
 # TODO
 
-- Fix invalid reads on commands get and gettable (see valgrind output)
-- Fix memory leaks on the server part
 - Catch signal
 - Makefile observer headers changes
 
