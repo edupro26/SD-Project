@@ -36,10 +36,6 @@ int terminate = 0;
 
 */
 int main(int argc, char **argv) {
-    // Sets the signal handler
-    ctrlC_handler(&terminate);
-
-
     if (argc != 2) {
         printf("Usage: ./table_client <server>:<port>\n");
         return -1;
@@ -107,9 +103,7 @@ int main(int argc, char **argv) {
             printf("Data: ");
             for (int i = 0; i < data->datasize; i++) {
                 char c = ((char *)data->data)[i];
-                if (isprint(c)) {
-                    printf("%c", c);
-                }
+                printf("%c", c);
             }
             printf("\n");
             data_destroy(data);
@@ -165,7 +159,12 @@ int main(int argc, char **argv) {
                 continue;
             }
             for (int i = 0; entries[i] != NULL; i++) {
-                printf("%s :: %s\n", entries[i]->key, (char *) entries[i]->value->data);
+                printf("%s :: ", entries[i]->key);
+                for (int j = 0; j < entries[i]->value->datasize; j++) {
+                    char c = ((char *)entries[i]->value->data)[j];
+                    printf("%c", c);
+                }
+                printf("\n");
             }
             rtable_free_entries(entries);
             free(command);       

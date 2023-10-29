@@ -20,9 +20,6 @@ Tiago Oliveira - 54979
 int terminate = 0;
 
 int main(int argc, char **argv) {
-    // Sets the signal handler
-    ctrlC_handler(&terminate);
-
     // Check if 2 arguments were passed
     if (argc != 3) {
         printf("Usage: ./table_server <port> <n_lists>\n");
