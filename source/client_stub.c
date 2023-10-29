@@ -11,15 +11,17 @@ Tiago Oliveira - 54979
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <unistd.h>
+#include <netdb.h>
+#include <arpa/inet.h>
 
 #include "data.h"
 #include "client_stub-private.h"
 
 
 struct rtable_t *rtable_connect(char *address_port) {
-    if (address_port == NULL) {
+    if (address_port == NULL)
         return NULL;
-    }
 
     // Parse address and port
     char *address = strtok(address_port, ":");
@@ -31,16 +33,40 @@ struct rtable_t *rtable_connect(char *address_port) {
 
     // Allocate memory for rtable
     struct rtable_t *rtable = (struct rtable_t *) malloc(sizeof(struct rtable_t));
-    if (rtable == NULL) {
+    if (rtable == NULL)
+        return NULL;
+
+    // Set server address and port
+    char hostbuff[256];
+    int name = gethostname(hostbuff, sizeof(hostbuff));
+    if (name < -0){
+        perror("Error connecting to server");
+        free(rtable->server_address);
+        free(rtable);
         return NULL;
     }
 
-    // Set server address and port
-    rtable->server_address = strdup(address);
+    if(strcmp(address, hostbuff) == 0){
+        char *IPbuff;
+        struct hostent *host = gethostbyname(hostbuff);
+        if (host == NULL) {
+            perror("Error connecting to server");
+            free(rtable->server_address);
+            free(rtable);
+            return NULL;
+        }
+        IPbuff = inet_ntoa(*((struct in_addr*)host->h_addr_list[0]));
+        rtable->server_address = strdup(IPbuff);
+    }
+    else{
+        rtable->server_address = strdup(address);
+    }
     rtable->server_port = atoi(port);
 
     if (network_connect(rtable) < 0) {
-        perror("Error connecting to server.");
+        perror("Error connecting to server");
+        free(rtable->server_address);
+        free(rtable);
         return NULL;
     }
 
@@ -51,7 +77,6 @@ struct rtable_t *rtable_connect(char *address_port) {
     }
 
     return rtable;
-
 }
 
 int rtable_disconnect(struct rtable_t *rtable) {
