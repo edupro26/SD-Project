@@ -146,9 +146,8 @@ struct data_t *rtable_get(struct rtable_t *rtable, char *key) {
 }
 
 int rtable_del(struct rtable_t *rtable, char *key) {
-    if (rtable == NULL || key == NULL) {
+    if (rtable == NULL || key == NULL)
         return -1;
-    }
 
     MessageT msg;
     message_t__init(&msg);
@@ -178,24 +177,22 @@ int rtable_del(struct rtable_t *rtable, char *key) {
 }
 
 int rtable_size(struct rtable_t *rtable) {
-    if (rtable == NULL) {
+    if (rtable == NULL)
         return -1;
-    }
 
-    MessageT *msg = (MessageT *)malloc(sizeof(MessageT));
-    message_t__init(msg);
+    MessageT msg;// = (MessageT *)malloc(sizeof(MessageT));
+    message_t__init(&msg);
+    msg.opcode = MESSAGE_T__OPCODE__OP_SIZE;
+    msg.c_type = MESSAGE_T__C_TYPE__CT_NONE;
 
     // Sends the request
-    msg->opcode = MESSAGE_T__OPCODE__OP_SIZE;
-    msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
+    MessageT *response = network_send_receive(rtable, &msg);
 
-    MessageT *response = network_send_receive(rtable, msg);
-    free(msg);
-
+    // Check response
     if (response == NULL) {
+        message_t__free_unpacked(response, NULL);
         return -1;
     }
-
     if (response->opcode == MESSAGE_T__OPCODE__OP_ERROR) {
         message_t__free_unpacked(response, NULL);
         return -1;
@@ -212,38 +209,33 @@ int rtable_size(struct rtable_t *rtable) {
 }
 
 char **rtable_get_keys(struct rtable_t *rtable) {
-    if (rtable == NULL) {
+    if (rtable == NULL)
         return NULL;
-    }
 
-    MessageT *msg = (MessageT *)malloc(sizeof(MessageT));
-    message_t__init(msg);
+    MessageT msg;
+    message_t__init(&msg);
+    msg.opcode = MESSAGE_T__OPCODE__OP_GETKEYS;
+    msg.c_type = MESSAGE_T__C_TYPE__CT_NONE;
 
     // Sends the request
-    msg->opcode = MESSAGE_T__OPCODE__OP_GETKEYS;
-    msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
+    MessageT *response = network_send_receive(rtable, &msg);
 
-    MessageT *response = network_send_receive(rtable, msg);
-    free(msg);
-
+    // Check response
     if (response == NULL) {
+        message_t__free_unpacked(response, NULL);
         return NULL;
     }
-
     if (response->opcode == MESSAGE_T__OPCODE__OP_ERROR) {
         message_t__free_unpacked(response, NULL);
         return NULL;
     }
 
-    if (response->opcode == MESSAGE_T__OPCODE__OP_GETKEYS+1 &&
-        response->c_type == MESSAGE_T__C_TYPE__CT_KEYS) {
-        // Returns the keys from the response
-        char **keys = (char **)malloc(sizeof(char *) * (response->n_keys + 1));
+    if (response->opcode == MESSAGE_T__OPCODE__OP_GETKEYS+1 && response->c_type == MESSAGE_T__C_TYPE__CT_KEYS) {
+        char **keys = (char **) malloc((response->n_keys + 1) * sizeof(char *));
         for (int i = 0; i < (int)response->n_keys; i++) {
             keys[i] = strdup(response->keys[i]);
         }
         keys[response->n_keys] = NULL;
-
         message_t__free_unpacked(response, NULL);
         return keys;
     } else {
@@ -265,30 +257,28 @@ void rtable_free_keys(char **keys) {
 }
 
 struct entry_t **rtable_get_table(struct rtable_t *rtable) {
-    if (rtable == NULL) {
+    if (rtable == NULL)
         return NULL;
-    }
 
-    MessageT *msg = (MessageT *)malloc(sizeof(MessageT));
-    message_t__init(msg);
+    MessageT msg;
+    message_t__init(&msg);
+    msg.opcode = MESSAGE_T__OPCODE__OP_GETTABLE;
+    msg.c_type = MESSAGE_T__C_TYPE__CT_NONE;
 
     // Sends the request
-    msg->opcode = MESSAGE_T__OPCODE__OP_GETTABLE;
-    msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
+    MessageT *response = network_send_receive(rtable, &msg);
 
-    MessageT *response = network_send_receive(rtable, msg);
-    free(msg);
-
+    // Check response
     if (response == NULL) {
+        message_t__free_unpacked(response, NULL);
         return NULL;
     }
-
     if (response->opcode == MESSAGE_T__OPCODE__OP_ERROR) {
         message_t__free_unpacked(response, NULL);
         return NULL;
     }
-    if (response->opcode == MESSAGE_T__OPCODE__OP_GETTABLE+1 &&
-        response->c_type == MESSAGE_T__C_TYPE__CT_TABLE) {
+
+    if (response->opcode == MESSAGE_T__OPCODE__OP_GETTABLE+1 && response->c_type == MESSAGE_T__C_TYPE__CT_TABLE) {
         struct entry_t **entries = (struct entry_t **)malloc(sizeof(struct entry_t *) * (response->n_entries + 1));
         if (entries == NULL) {
             message_t__free_unpacked(response, NULL);
@@ -296,19 +286,12 @@ struct entry_t **rtable_get_table(struct rtable_t *rtable) {
         }
 
         for (int i = 0; i < (int)response->n_entries; i++) {
-            entries[i] = (struct entry_t *) malloc(sizeof(struct entry_t));
-            //entry_t__init(entries[i]);
-
-            entries[i]->key = strdup(response->entries[i]->key);
-            entries[i]->value = (struct data_t *)malloc(sizeof(struct data_t));
-            entries[i]->value->data = malloc(response->entries[i]->value.len);
-            entries[i]->value->datasize = response->entries[i]->value.len;
-            memcpy(entries[i]->value->data, response->entries[i]->value.data, entries[i]->value->datasize);
-            if (entries[i]->value == NULL) return NULL;
-            if (entries[i]->value->data == NULL) return NULL;
-
-        }
-
+            struct data_t *data_temp = data_create(response->entries[i]->value.len, response->entries[i]->value.data);
+            struct data_t *data = data_dup(data_temp);
+            char *key = strdup(response->entries[i]->key);
+            entries[i] = entry_create(key, data);
+            free(data_temp);
+        }    
         entries[response->n_entries] = NULL;
 
         message_t__free_unpacked(response, NULL);
@@ -325,7 +308,7 @@ void rtable_free_entries(struct entry_t **entries) {
     }
 
     for (int i = 0; entries[i] != NULL; i++) {
-        free(entries[i]);
+        entry_destroy(entries[i]);
     }
 
     free(entries);

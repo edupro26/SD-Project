@@ -126,36 +126,43 @@ int main(int argc, char **argv) {
             int size = rtable_size(rtable);
             if (size < 0) {
                 printf("Error executing command\n");
+                free(command);
                 continue;
             }
             printf("Table size: %d\n", size);
+            free(command);
         } 
         else if (strcmp(command_name, "getkeys") == 0) {
             char **keys = rtable_get_keys(rtable);
             if (keys[0] == NULL) {
                 printf("Error executing command or table is empty\n");
+                free(command);
                 continue;
             }
             for (int i = 0; keys[i] != NULL; i++) {
                 printf("%s\n", keys[i]);
             }
             rtable_free_keys(keys);
+            free(command);
         } 
         else if (strcmp(command_name, "gettable") == 0) {
             struct entry_t **entries = rtable_get_table(rtable);
             if (entries[0] == NULL) {
                 printf("Error executing command or table is empty\n");
+                free(command);
                 continue;
             }
             for (int i = 0; entries[i] != NULL; i++) {
                 printf("%s :: %s\n", entries[i]->key, (char *) entries[i]->value->data);
             }
-            rtable_free_entries(entries);       
+            rtable_free_entries(entries);
+            free(command);       
         } 
         else if (strcmp(command_name, "quit") == 0) {
             int cls = rtable_disconnect(rtable);
             if(cls < 0){
                 perror("Error closing connection to server");
+                free(command);
                 break;
             }
             printf("Closing client...\n");
