@@ -12,6 +12,7 @@ Tiago Oliveira - 54979
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "client_stub-private.h"
 #include "entry.h"
@@ -103,7 +104,14 @@ int main(int argc, char **argv) {
                 free(command);
                 continue;
             }
-            printf("Data: %s\n", (char *) data->data);
+            printf("Data: ");
+            for (int i = 0; i < data->datasize; i++) {
+                char c = ((char *)data->data)[i];
+                if (isprint(c)) {
+                    printf("%c", c);
+                }
+            }
+            printf("\n");
             data_destroy(data);
             free(command);
         } 
