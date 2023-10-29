@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
         return -1;
     }
 
-    while (1)  {
+    while (terminate == 0)  {
         char *command = NULL;
         size_t command_size = 0;
         ssize_t command_len;
@@ -77,7 +77,7 @@ int main(int argc, char **argv) {
         // Execute command
         if (strcmp(command_name, "put") == 0) {
             if (command_key == NULL || command_data == NULL) {
-                printf("Invalid arguments. Usage: put <key> <data>\n");
+                printf("Invalid arguments. Usage: put <key> <value>\n");
                 free(command);
                 continue;
             }
@@ -85,7 +85,7 @@ int main(int argc, char **argv) {
             struct entry_t *entry = entry_create(command_key, data);
             int put = rtable_put(rtable, entry);
             if (put < 0) {
-                printf("Error executing command\n");
+                printf("Error in rtable_put\n");
                 free(command);
                 continue;
             }
@@ -99,7 +99,7 @@ int main(int argc, char **argv) {
             }
             struct data_t *data = rtable_get(rtable, command_key);
             if (data == NULL) {
-                printf("Error executing command or key was not found\n");
+                printf("Error in rtable_get or key not found!\n");
                 free(command);
                 continue;
             }
@@ -115,7 +115,7 @@ int main(int argc, char **argv) {
             }
             int del = rtable_del(rtable, command_key);
             if (del < 0) {
-                printf("Error executing command or key was not found\n");
+                printf("Error in rtable_del\n");
                 free(command);
                 continue;
             }
@@ -125,7 +125,7 @@ int main(int argc, char **argv) {
         else if (strcmp(command_name, "size") == 0) {
             int size = rtable_size(rtable);
             if (size < 0) {
-                printf("Error executing command\n");
+                printf("Error in rtable_size\n");
                 free(command);
                 continue;
             }
@@ -134,8 +134,10 @@ int main(int argc, char **argv) {
         } 
         else if (strcmp(command_name, "getkeys") == 0) {
             char **keys = rtable_get_keys(rtable);
+            if (keys == NULL) {
+                printf("Error in rtable_get_keys\n");
+            }
             if (keys[0] == NULL) {
-                printf("Error executing command or table is empty\n");
                 free(command);
                 continue;
             }
@@ -147,8 +149,10 @@ int main(int argc, char **argv) {
         } 
         else if (strcmp(command_name, "gettable") == 0) {
             struct entry_t **entries = rtable_get_table(rtable);
+            if (entries == NULL) {
+                printf("Error executing rtable_get_table\n");
+            }
             if (entries[0] == NULL) {
-                printf("Error executing command or table is empty\n");
                 free(command);
                 continue;
             }
@@ -161,7 +165,7 @@ int main(int argc, char **argv) {
         else if (strcmp(command_name, "quit") == 0) {
             int cls = rtable_disconnect(rtable);
             if(cls < 0){
-                perror("Error closing connection to server");
+                perror("Error closing connection to server\n");
                 free(command);
                 break;
             }
