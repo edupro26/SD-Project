@@ -105,15 +105,22 @@ int rtable_put(struct rtable_t *rtable, struct entry_t *entry){
     message_t__init(&msg);
     msg.opcode = MESSAGE_T__OPCODE__OP_PUT;
     msg.c_type = MESSAGE_T__C_TYPE__CT_ENTRY;
-    msg.key = entry->key;
-    msg.value.len = entry->value->datasize;
-    msg.value.data = entry->value->data;
+
+    EntryT *entry_msg = (EntryT *) malloc(sizeof(EntryT));
+    if(entry_msg == NULL){
+        return -1;
+    }
+    entry_t__init(entry_msg);
+    entry_msg->key = entry->key;
+    entry_msg->value.len = entry->value->datasize; 
+    entry_msg->value.data = entry->value->data;
+    msg.entry = entry_msg;
 
     // Sends the request
     MessageT *response = network_send_receive(rtable, &msg);
-
     free(entry->value);
     free(entry);
+    free(entry_msg);
 
     // Check response
     if (response->opcode == MESSAGE_T__OPCODE__OP_ERROR) {

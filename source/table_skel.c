@@ -43,8 +43,8 @@ int invoke(MessageT *msg, struct table_t *table) {
     switch (msg->opcode) {
         case MESSAGE_T__OPCODE__OP_PUT:
             if (msg->c_type == MESSAGE_T__C_TYPE__CT_ENTRY) {
-                struct data_t *data = data_create(msg->value.len, msg->value.data);
-                int result = table_put(table, msg->key, data);
+                struct data_t *data = data_create(msg->entry->value.len, msg->entry->value.data);
+                int result = table_put(table, msg->entry->key, data);
                 if (result == 0) {
                     msg->opcode = MESSAGE_T__OPCODE__OP_PUT + 1;
                     msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
