@@ -104,7 +104,7 @@ int network_main_loop(int listening_socket, struct table_t *table) {
         // Close client socket
         close(client_socket);
         printf("Client connection closed\n");
-        printf("Waiting for connections...\n");
+        printf("Server ready, waiting for connections\n");
     }
 
     return 0;
