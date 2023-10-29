@@ -138,7 +138,6 @@ MessageT *network_receive(int client_socket) {
 
     // Deserialize the message
     MessageT *message = message_t__unpack(NULL, bytes_read, buffer);
-
     // Free the buffer
     free(buffer);
 
@@ -166,6 +165,7 @@ int network_send(int client_socket, MessageT *msg) {
     }
 
     message_t__pack(msg, buffer);
+    message_t__free_unpacked(msg, NULL);
 
     // Send the size of the message (2 bytes)
     int16_t size_to_send = htons(message_size);
