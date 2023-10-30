@@ -64,7 +64,7 @@ dkms.conf
 binary/**
 
 # Exceptions
-!objects/table.o
-!objects/entry.o
-!objects/data.o
-!objects/list.o
+!**/table.o
+!**/entry.o
+!**/data.o
+!**/list.o
