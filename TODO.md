@@ -1,8 +1,6 @@
 
 # TODO
-
-- Catch signal
-- Makefile observer headers changes
+- Make sure gettable data null is freeing all the data
 
 
 # Messages
