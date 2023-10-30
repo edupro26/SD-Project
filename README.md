@@ -1,4 +1,4 @@
-# Projeto 2 - Sistemas Distribuídos
+# Projeto 3 - Sistemas Distribuídos
 
 Trabalho desenvolvido para a disciplina de Sistemas Distribuídos da Faculdade de Ciências da Universidade de Lisboa.
 

@@ -1,6 +1,5 @@
 
 # TODO
-- Make sure gettable data null is freeing all the data
 
 
 # Messages
