@@ -8,6 +8,7 @@ Trabalho desenvolvido para a disciplina de Sistemas Distribuídos da Faculdade d
 O diretório do projeto é consituído pelos seguintes subdiretórios:
 - `source` - contém os ficheiros fonte do projeto
 - `include` - contém os ficheiros de cabeçalho do projeto
+- `dependencies` - contém os ficheiros de dependências do projeto
 - `objects` - contém os ficheiros objeto do projeto
 - `lib` - contém os ficheiros de bibliotecas usados no projeto
 - `binary` - contém os executáveis do projeto
