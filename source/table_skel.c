@@ -36,11 +36,13 @@ int table_skel_destroy(struct table_t *table) {
 }
 
 int invoke(MessageT *msg, struct table_t *table) {
+    // If message or table is NULL return -1
     if (msg == NULL || table == NULL) {
         return -1;
     }
 
     switch (msg->opcode) {
+        // OPERATION PUT
         case MESSAGE_T__OPCODE__OP_PUT:
             if (msg->c_type == MESSAGE_T__C_TYPE__CT_ENTRY) {
                 struct data_t *data = data_create(msg->entry->value.len, msg->entry->value.data);
@@ -57,6 +59,7 @@ int invoke(MessageT *msg, struct table_t *table) {
             }
             break;
 
+        // OPERATION GET
         case MESSAGE_T__OPCODE__OP_GET:
             if (msg->c_type == MESSAGE_T__C_TYPE__CT_KEY) {
                 struct data_t *result_data = table_get(table, msg->key);
@@ -81,6 +84,7 @@ int invoke(MessageT *msg, struct table_t *table) {
             }
             break;
 
+        // OPERATION DEL
         case MESSAGE_T__OPCODE__OP_DEL:
             if (msg->c_type == MESSAGE_T__C_TYPE__CT_KEY) {
                 int result = table_remove(table, msg->key);
@@ -99,6 +103,7 @@ int invoke(MessageT *msg, struct table_t *table) {
             }
             break;
 
+        // OPERATION SIZE
         case MESSAGE_T__OPCODE__OP_SIZE:
             if (msg->c_type == MESSAGE_T__C_TYPE__CT_NONE) {
                 int size = table_size(table);
@@ -113,6 +118,7 @@ int invoke(MessageT *msg, struct table_t *table) {
             }
             break;
 
+        // OPERATION GETKEYS
         case MESSAGE_T__OPCODE__OP_GETKEYS:
             if (msg->c_type == MESSAGE_T__C_TYPE__CT_NONE) {
                 char **keys = table_get_keys(table);
@@ -130,6 +136,7 @@ int invoke(MessageT *msg, struct table_t *table) {
             }
             break;
         
+        //OPERATION GETTABLE
         case MESSAGE_T__OPCODE__OP_GETTABLE:
             if (msg->c_type == MESSAGE_T__C_TYPE__CT_NONE) {
                 // Get all keys
@@ -164,7 +171,7 @@ int invoke(MessageT *msg, struct table_t *table) {
                     entry_t__init(entry);
                     entry->key = strdup(keys[i]); 
                     entry->value.data = malloc(data->datasize);
-                    if (!entry->value.data) {
+                    if (!entry->value.data) { 
                         msg->opcode = MESSAGE_T__OPCODE__OP_ERROR;
                         msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
                         break;

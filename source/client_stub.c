@@ -63,6 +63,7 @@ struct rtable_t *rtable_connect(char *address_port) {
     }
     rtable->server_port = atoi(port);
 
+    // Calls network_connect to connect to the server
     if (network_connect(rtable) < 0) {
         perror("Error connecting to server");
         free(rtable->server_address);
