@@ -57,7 +57,7 @@ int main(int argc, char **argv) {
             free(command);
         }
             
-        // Execute command
+        // put <key> <data>
         if (strcmp(command_name, "put") == 0) {
             if (command_key == NULL || command_data == NULL) {
                 printf("Invalid arguments. Usage: put <key> <value>\n");
@@ -74,6 +74,7 @@ int main(int argc, char **argv) {
             }
             free(command);
         } 
+        // get <key>
         else if (strcmp(command_name, "get") == 0) {
             if (command_key == NULL) {
                 printf("Invalid arguments. Usage: get <key>\n");
@@ -94,7 +95,8 @@ int main(int argc, char **argv) {
             printf("\n");
             data_destroy(data);
             free(command);
-        } 
+        }
+        // del <key> 
         else if (strcmp(command_name, "del") == 0) {
             if (command_key == NULL) {
                 printf("Invalid arguments. Usage: del <key>\n");
@@ -110,6 +112,7 @@ int main(int argc, char **argv) {
             printf("Entry removed\n");
             free(command);
         } 
+        // size
         else if (strcmp(command_name, "size") == 0) {
             int size = rtable_size(rtable);
             if (size < 0) {
@@ -120,6 +123,7 @@ int main(int argc, char **argv) {
             printf("Table size: %d\n", size);
             free(command);
         } 
+        // getkeys
         else if (strcmp(command_name, "getkeys") == 0) {
             char **keys = rtable_get_keys(rtable);
             if (keys == NULL) {
@@ -135,6 +139,7 @@ int main(int argc, char **argv) {
             rtable_free_keys(keys);
             free(command);
         } 
+        // gettable
         else if (strcmp(command_name, "gettable") == 0) {
             struct entry_t **entries = rtable_get_table(rtable);
             if (entries == NULL) {
@@ -155,6 +160,7 @@ int main(int argc, char **argv) {
             rtable_free_entries(entries);
             free(command);       
         } 
+        // quit
         else if (strcmp(command_name, "quit") == 0) {
             int cls = rtable_disconnect(rtable);
             if(cls < 0){
