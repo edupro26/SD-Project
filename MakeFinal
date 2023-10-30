@@ -1,0 +1,41 @@
+BIN_DIR = binary
+INC_DIR = include
+OBJ_DIR = objects
+SRC_DIR = source
+LIB_DIR = lib
+DEP_DIR = dependencies
+
+CC = gcc
+CFLAGS = -g -lrt -Wall -Wextra -MMD -MP -MF $(DEP_DIR)/$*.d -I $(INC_DIR)
+
+EXECS = libtable $(BIN_DIR)/table_server $(BIN_DIR)/table_client
+
+TABLE_CLIENT = $(OBJ_DIR)/sdmessage.pb-c.o $(OBJ_DIR)/table_client.o $(OBJ_DIR)/client_stub.o $(OBJ_DIR)/network_client.o $(OBJ_DIR)/message.o
+TABLE_SERVER = $(OBJ_DIR)/sdmessage.pb-c.o $(OBJ_DIR)/table_server.o $(OBJ_DIR)/network_server.o $(OBJ_DIR)/table_skel.o $(OBJ_DIR)/message.o
+
+OBJ_TO_DEL = $(OBJ_DIR)/network_client.o $(OBJ_DIR)/client_stub.o $(OBJ_DIR)/client_stub-private.o $(OBJ_DIR)/network_server.o $(OBJ_DIR)/table_skel.o $(OBJ_DIR)/table_skel-private.o $(OBJ_DIR)/table_client.o $(OBJ_DIR)/table_server.o $(OBJ_DIR)/sdmessage.pb-c.o
+
+all: $(EXECS)
+
+libtable: 
+	ar rcs $(LIB_DIR)/libtable.a $(OBJ_DIR)/table.o $(OBJ_DIR)/data.o $(OBJ_DIR)/entry.o $(OBJ_DIR)/list.o
+
+table-client: $(BIN_DIR)/table_client
+
+table-server: $(BIN_DIR)/table_server
+
+$(BIN_DIR)/table_client: $(TABLE_CLIENT)
+	$(CC) $^ -lprotobuf-c -L$(LIB_DIR) -ltable -o $@
+
+$(BIN_DIR)/table_server: $(TABLE_SERVER)
+	$(CC) $^ -lprotobuf-c -L$(LIB_DIR) -ltable -o $@
+
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+	$(CC) $(CFLAGS) -o $@ -c $<
+
+include $(wildcard $(DEP_DIR)/*.d)
+
+clean:
+	rm -f $(EXECS) $(OBJ_TO_DEL) $(LIB_DIR)/* $(DEP_DIR)/*
+
+.PHONY: all clean

@@ -18,4 +18,4 @@ jobs:
     - name: Create directories
       run: mkdir lib binary dependencies
     - name: make
-      run: make
+      run: make -f MakeFinal
