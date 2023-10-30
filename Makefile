@@ -3,11 +3,12 @@ INC_DIR = include
 OBJ_DIR = objects
 SRC_DIR = source
 LIB_DIR = lib
+DEP_DIR = dependencies
 MAC_INC_DIR = -I /opt/homebrew/Cellar/protobuf-c/1.4.1_8/include
 MAC_LINK_FLAGS = -L/opt/homebrew/Cellar/protobuf-c/1.4.1_8/lib -lprotobuf-c
 
 CC = gcc
-CFLAGS = -g -lrt -Wall -Wextra -I $(INC_DIR) $(MAC_INC_DIR)
+CFLAGS = -g -lrt -Wall -Wextra -MMD -MP -MF $(DEP_DIR)/$*.d -I $(INC_DIR) $(MAC_INC_DIR)
 LDFLAGS = $(MAC_LINK_FLAGS)
 
 EXECS = libtable $(BIN_DIR)/table_server $(BIN_DIR)/table_client
@@ -49,7 +50,9 @@ $(BIN_DIR)/table_server: $(TABLE_SERVER)
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -o $@ -c $<
 
+include $(wildcard $(DEP_DIR)/*.d)
+
 clean:
-	rm -f $(EXECS) $(OBJ_TO_DEL) $(LIB_DIR)/libtable.a
+	rm -f $(EXECS) $(OBJ_TO_DEL) $(LIB_DIR)/libtable.a $(DEP_DIR)/*
 
 .PHONY: all clean
