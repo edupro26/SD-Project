@@ -42,17 +42,30 @@ mac-table-server: $(TABLE_SERVER)
 mac: libtable-mac mac-table-client mac-table-server
 
 $(BIN_DIR)/table_client: $(TABLE_CLIENT)
+	mkdir -p $(BIN_DIR)
 	$(CC) $^ -lprotobuf-c -L$(LIB_DIR) -ltable -o $@
 
 $(BIN_DIR)/table_server: $(TABLE_SERVER)
+	mkdir -p $(BIN_DIR)
 	$(CC) $^ -lprotobuf-c -L$(LIB_DIR) -ltable -o $@
 
+$(SRC_DIR)/sdmessage.pb-c.c $(INC_DIR)/sdmessage.pb-c.h: sdmessage.proto
+    protoc-c --c_out=. $<
+    mv sdmessage.pb-c.c $(SRC_DIR)
+    mv sdmessage.pb-c.h $(INC_DIR)
+
+$(OBJ_DIR)/sdmessage.pb-c.o: $(SRC_DIR)/sdmessage.pb-c.c $(INC_DIR)/sdmessage.pb-c.h
+    mkdir -p $(OBJ_DIR) $(DEP_DIR)
+    $(CC) $(CFLAGS) -o $@ -c $<
+
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+	mkdir -p $(OBJ_DIR) $(DEP_DIR)
 	$(CC) $(CFLAGS) -o $@ -c $<
 
 include $(wildcard $(DEP_DIR)/*.d)
 
 clean:
-	rm -f $(EXECS) $(OBJ_TO_DEL) $(LIB_DIR)/libtable.a $(DEP_DIR)/*
+	rm -f $(EXECS) $(OBJ_TO_DEL) $(LIB_DIR)/* $(DEP_DIR)/* $(SRC_DIR)/sdmessage.pb-c.c $(INC_DIR)/sdmessage.pb-c.h
+
 
 .PHONY: all clean
