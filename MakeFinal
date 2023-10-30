@@ -21,6 +21,7 @@ all: libtable $(EXECS)
 libtable: $(LIB_DIR)/libtable.a
 
 $(LIB_DIR)/libtable.a: $(LIB_OBJ)
+	mkdir -p $(LIB_DIR)
 	ar rcs $@ $^
 
 table-client: $(BIN_DIR)/table_client
@@ -28,12 +29,15 @@ table-client: $(BIN_DIR)/table_client
 table-server: $(BIN_DIR)/table_server
 
 $(BIN_DIR)/table_client: $(TABLE_CLIENT)
+	mkdir -p $(BIN_DIR)
 	$(CC) $^ -lprotobuf-c -L$(LIB_DIR) -ltable -o $@
 
 $(BIN_DIR)/table_server: $(TABLE_SERVER)
+	mkdir -p $(BIN_DIR)
 	$(CC) $^ -lprotobuf-c -L$(LIB_DIR) -ltable -o $@
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+	mkdir -p $(OBJ_DIR) $(DEP_DIR)
 	$(CC) $(CFLAGS) -o $@ -c $<
 
 include $(wildcard $(DEP_DIR)/*.d)
