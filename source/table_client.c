@@ -13,29 +13,15 @@ Tiago Oliveira - 54979
 #include <unistd.h>
 #include <string.h>
 #include <ctype.h>
+#include <signal.h>
 
 #include "client_stub-private.h"
 #include "entry.h"
-#include "signal-private.h"
 
-// Iniciates the int terminate flag to 0, that is going to be used in the signal handler
-int terminate = 0;
 
-/*
-    Usage:
-    ./table_client <ip_server>:<port_server>
-
-    Commands:
-    put <key> <data>
-    get <key>
-    del <key>
-    size
-    getkeys
-    gettable
-    quit
-
-*/
 int main(int argc, char **argv) {
+    signal(SIGPIPE, SIG_IGN);
+
     if (argc != 2) {
         printf("Usage: ./table_client <server>:<port>\n");
         return -1;
@@ -46,7 +32,7 @@ int main(int argc, char **argv) {
         return -1;
     }
 
-    while (terminate == 0)  {
+    while (1)  {
         char *command = NULL;
         size_t command_size = 0;
         ssize_t command_len;

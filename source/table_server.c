@@ -14,10 +14,7 @@ Tiago Oliveira - 54979
 
 #include "network_server.h"
 #include "table_skel.h"
-#include "signal-private.h"
 
-// Iniciates the int terminate flag to 0, that is going to be used in the signal handler
-int terminate = 0;
 
 int main(int argc, char **argv) {
     // Check if 2 arguments were passed
