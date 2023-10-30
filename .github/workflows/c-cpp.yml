@@ -16,6 +16,6 @@ jobs:
     - name: Install protobuf-c
       run: sudo apt install libprotobuf-c-dev protobuf-c-compiler  
     - name: Create directories
-      run: mkdir lib binary
+      run: mkdir lib binary dependecies
     - name: make
       run: make
