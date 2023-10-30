@@ -3,7 +3,7 @@
 Trabalho desenvolvido para a disciplina de Sistemas Distribuídos da Faculdade de Ciências da Universidade de Lisboa.
 
 ## Instruções de utilização
-É incluido um ficheiro Makefile que deve ser utilizado para compilar o programa. Para isso basta correr o comando `make` na pasta onde se encontra o ficheiro Makefile. São craidos 5 executáveis, um para cada serie de testes.
+É incluido um ficheiro Makefile que deve ser utilizado para compilar o programa. Para isso basta correr o comando `make` na pasta onde se encontra o ficheiro Makefile. São criados 2 executáveis, um para o servidor e outro para o cliente.
 
 O diretório do projeto é consituído pelos seguintes subdiretórios:
 - `source` - contém os ficheiros fonte do projeto
