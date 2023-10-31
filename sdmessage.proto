@@ -11,9 +11,9 @@ message entry_t			/* Formato da mensagem EntryT */
 
 message statistics_t /* Formato da mensagem SstatisticsT */
 {
-	sint32 nkeys		= 1;
-	sint32 nentries	= 2;
-	sint32 nbytes		= 3;
+	sint32 ops		= 1;
+	sint32 clients	= 2;
+	sint32 time		= 3;
 }
 
 message message_t			/* Formato da mensagem MessageT */

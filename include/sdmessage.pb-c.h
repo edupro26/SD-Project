@@ -63,9 +63,9 @@ struct  EntryT
 struct  StatisticsT
 {
   ProtobufCMessage base;
-  int32_t nkeys;
-  int32_t nentries;
-  int32_t nbytes;
+  int32_t ops;
+  int32_t clients;
+  int32_t time;
 };
 #define STATISTICS_T__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&statistics_t__descriptor) \

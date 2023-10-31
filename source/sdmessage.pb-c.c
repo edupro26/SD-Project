@@ -196,36 +196,36 @@ const ProtobufCMessageDescriptor entry_t__descriptor =
 static const ProtobufCFieldDescriptor statistics_t__field_descriptors[3] =
 {
   {
-    "nkeys",
+    "ops",
     1,
     PROTOBUF_C_LABEL_NONE,
     PROTOBUF_C_TYPE_SINT32,
     0,   /* quantifier_offset */
-    offsetof(StatisticsT, nkeys),
+    offsetof(StatisticsT, ops),
     NULL,
     NULL,
     0,             /* flags */
     0,NULL,NULL    /* reserved1,reserved2, etc */
   },
   {
-    "nentries",
+    "clients",
     2,
     PROTOBUF_C_LABEL_NONE,
     PROTOBUF_C_TYPE_SINT32,
     0,   /* quantifier_offset */
-    offsetof(StatisticsT, nentries),
+    offsetof(StatisticsT, clients),
     NULL,
     NULL,
     0,             /* flags */
     0,NULL,NULL    /* reserved1,reserved2, etc */
   },
   {
-    "nbytes",
+    "time",
     3,
     PROTOBUF_C_LABEL_NONE,
     PROTOBUF_C_TYPE_SINT32,
     0,   /* quantifier_offset */
-    offsetof(StatisticsT, nbytes),
+    offsetof(StatisticsT, time),
     NULL,
     NULL,
     0,             /* flags */
@@ -233,9 +233,9 @@ static const ProtobufCFieldDescriptor statistics_t__field_descriptors[3] =
   },
 };
 static const unsigned statistics_t__field_indices_by_name[] = {
-  2,   /* field[2] = nbytes */
-  1,   /* field[1] = nentries */
-  0,   /* field[0] = nkeys */
+  1,   /* field[1] = clients */
+  0,   /* field[0] = ops */
+  2,   /* field[2] = time */
 };
 static const ProtobufCIntRange statistics_t__number_ranges[1 + 1] =
 {
