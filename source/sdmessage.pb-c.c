@@ -299,7 +299,7 @@ const ProtobufCEnumDescriptor message_t__opcode__descriptor =
   message_t__opcode__value_ranges,
   NULL,NULL,NULL,NULL   /* reserved[1234] */
 };
-static const ProtobufCEnumValue message_t__c_type__enum_values_by_number[8] =
+static const ProtobufCEnumValue message_t__c_type__enum_values_by_number[9] =
 {
   { "CT_BAD", "MESSAGE_T__C_TYPE__CT_BAD", 0 },
   { "CT_ENTRY", "MESSAGE_T__C_TYPE__CT_ENTRY", 10 },
@@ -309,11 +309,12 @@ static const ProtobufCEnumValue message_t__c_type__enum_values_by_number[8] =
   { "CT_KEYS", "MESSAGE_T__C_TYPE__CT_KEYS", 50 },
   { "CT_TABLE", "MESSAGE_T__C_TYPE__CT_TABLE", 60 },
   { "CT_NONE", "MESSAGE_T__C_TYPE__CT_NONE", 70 },
+  { "CT_STATS", "MESSAGE_T__C_TYPE__CT_STATS", 80 },
 };
 static const ProtobufCIntRange message_t__c_type__value_ranges[] = {
-{0, 0},{10, 1},{20, 2},{30, 3},{40, 4},{50, 5},{60, 6},{70, 7},{0, 8}
+{0, 0},{10, 1},{20, 2},{30, 3},{40, 4},{50, 5},{60, 6},{70, 7},{80, 8},{0, 9}
 };
-static const ProtobufCEnumValueIndex message_t__c_type__enum_values_by_name[8] =
+static const ProtobufCEnumValueIndex message_t__c_type__enum_values_by_name[9] =
 {
   { "CT_BAD", 0 },
   { "CT_ENTRY", 1 },
@@ -321,6 +322,7 @@ static const ProtobufCEnumValueIndex message_t__c_type__enum_values_by_name[8] =
   { "CT_KEYS", 5 },
   { "CT_NONE", 7 },
   { "CT_RESULT", 4 },
+  { "CT_STATS", 8 },
   { "CT_TABLE", 6 },
   { "CT_VALUE", 3 },
 };
@@ -331,11 +333,11 @@ const ProtobufCEnumDescriptor message_t__c_type__descriptor =
   "C_type",
   "MessageT__CType",
   "",
-  8,
+  9,
   message_t__c_type__enum_values_by_number,
-  8,
+  9,
   message_t__c_type__enum_values_by_name,
-  8,
+  9,
   message_t__c_type__value_ranges,
   NULL,NULL,NULL,NULL   /* reserved[1234] */
 };
