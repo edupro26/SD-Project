@@ -16,6 +16,7 @@ Tiago Oliveira - 54979
 #include <arpa/inet.h>
 
 #include "data.h"
+#include "stats.h"
 #include "client_stub-private.h"
 
 
@@ -378,4 +379,41 @@ void rtable_free_entries(struct entry_t **entries) {
     }
 
     free(entries);
+}
+
+struct statistics_t *rtable_stats(struct rtable_t *rtable) {
+    MessageT msg;
+    message_t__init(&msg);
+    msg.opcode = MESSAGE_T__OPCODE__OP_STATS;
+    msg.c_type = MESSAGE_T__C_TYPE__CT_NONE;
+
+    // Sends the request
+    MessageT *response = network_send_receive(rtable, &msg);
+
+    // Check response
+    if (response == NULL) {
+        message_t__free_unpacked(response, NULL);
+        return NULL;
+    }
+
+    // Check if response is what expected
+    if (response->opcode == MESSAGE_T__OPCODE__OP_STATS+1 && response->c_type == MESSAGE_T__C_TYPE__CT_STATS) {
+        struct statistics_t *stats = (struct statistics_t *) malloc(sizeof(struct statistics_t));
+        if (stats == NULL) {
+            message_t__free_unpacked(response, NULL);
+            return NULL;
+        }
+        stats->ops = response->stats->ops;
+        stats->clients = response->stats->clients;
+        stats->time = response->stats->time;
+
+        message_t__free_unpacked(response, NULL);
+        return stats;
+    } else {
+        message_t__free_unpacked(response, NULL);
+        return NULL;
+    }
+
+
+    return NULL;
 }
