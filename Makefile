@@ -17,7 +17,7 @@ LIB_MAC_OBJ = $(OBJ_DIR)/table-mac.o $(OBJ_DIR)/data-mac.o $(OBJ_DIR)/entry-mac.
 TABLE_CLIENT = $(OBJ_DIR)/sdmessage.pb-c.o $(OBJ_DIR)/table_client.o $(OBJ_DIR)/client_stub.o $(OBJ_DIR)/network_client.o $(OBJ_DIR)/message.o
 TABLE_SERVER = $(OBJ_DIR)/sdmessage.pb-c.o $(OBJ_DIR)/table_server.o $(OBJ_DIR)/network_server.o $(OBJ_DIR)/table_skel.o $(OBJ_DIR)/message.o
 
-OBJ_TO_DEL = $(OBJ_DIR)/network_client.o $(OBJ_DIR)/client_stub.o $(OBJ_DIR)/client_stub-private.o $(OBJ_DIR)/network_server.o $(OBJ_DIR)/table_skel.o $(OBJ_DIR)/table_skel-private.o $(OBJ_DIR)/table_client.o $(OBJ_DIR)/table_server.o $(OBJ_DIR)/sdmessage.pb-c.o
+OBJ_TO_DEL = $(OBJ_DIR)/network_client.o $(OBJ_DIR)/client_stub.o $(OBJ_DIR)/client_stub-private.o $(OBJ_DIR)/network_server.o $(OBJ_DIR)/table_skel.o $(OBJ_DIR)/table_skel-private.o $(OBJ_DIR)/table_client.o $(OBJ_DIR)/table_server.o $(OBJ_DIR)/sdmessage.pb-c.o $(OBJ_DIR)/message.o
 
 all: $(EXECS)
 
@@ -53,10 +53,6 @@ $(SRC_DIR)/sdmessage.pb-c.c $(INC_DIR)/sdmessage.pb-c.h: sdmessage.proto
 	protoc-c --c_out=. $<
 	mv sdmessage.pb-c.c $(SRC_DIR)
 	mv sdmessage.pb-c.h $(INC_DIR)
-
-$(OBJ_DIR)/sdmessage.pb-c.o: $(SRC_DIR)/sdmessage.pb-c.c $(INC_DIR)/sdmessage.pb-c.h
-	mkdir -p $(OBJ_DIR) $(DEP_DIR)
-	$(CC) $(CFLAGS) -o $@ -c $<
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	mkdir -p $(OBJ_DIR) $(DEP_DIR)
