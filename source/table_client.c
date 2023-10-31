@@ -17,6 +17,7 @@ Tiago Oliveira - 54979
 
 #include "client_stub-private.h"
 #include "entry.h"
+#include "stats.h"
 
 
 int main(int argc, char **argv) {
@@ -160,6 +161,22 @@ int main(int argc, char **argv) {
             rtable_free_entries(entries);
             free(command);       
         } 
+        // stats
+        else if (strcmp(command_name, "stats") == 0) {
+            struct statistics_t *stats = rtable_stats(rtable);
+            if (stats == NULL) {
+                printf("Error executing rtable_stats\n");
+                // Free memory
+                break;
+            }
+            printf("Stats\n");
+            printf("Ops: %d\n", stats->ops);
+            printf("Clients: %d\n", stats->clients);
+            printf("Uptime: %d\n", stats->time);
+    
+        
+            free(command);
+        }
         // quit
         else if (strcmp(command_name, "quit") == 0) {
             int cls = rtable_disconnect(rtable);
