@@ -24,23 +24,12 @@ Tiago Oliveira - 54979
 #include "network_server.h"
 #include "message-private.h"
 #include "table_skel.h"
+#include "stats.h"
 
 // Create a variable to sore the table_t pointer
 struct table_t *table_ptr;
 
 
-
-// Create stats struct to save the number of operations, number of clients connected and sum of operations time
-
-struct statistics_t
-{
-    int ops;
-    int clients;
-    int time;
-};
-
-
-struct statistics_t *stats;
 
 
 
