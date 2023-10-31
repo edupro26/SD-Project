@@ -29,10 +29,30 @@ struct table_t *table_ptr;
 
 
 
+// Create stats struct to save the number of operations, number of clients connected and sum of operations time
+
+struct statistics_t
+{
+    int ops;
+    int clients;
+    int time;
+};
+
+
+struct statistics_t *stats;
+
+
+
 int network_server_init(short port) {
     int sockfd;
     int opt = 1;  // option for setsockopt
     struct sockaddr_in address;
+
+    // Initialize stats
+    stats = malloc(sizeof(struct statistics_t));
+    stats->ops = 0;
+    stats->clients = 0;
+    stats->time = 0;
 
     
 
@@ -72,6 +92,7 @@ int network_server_init(short port) {
 }
 
 void *handle_client(void *arg) {
+    stats->clients++;
     MessageT *request;
     int client_socket = *(int *)arg;
 
@@ -101,7 +122,9 @@ void *handle_client(void *arg) {
 
     // Close client socket
     close(client_socket);
+    stats->clients--;
     printf("Client connection closed\n");
+
 
     return 0;   
 }
@@ -161,6 +184,12 @@ MessageT *network_receive(int client_socket) {
     MessageT *message = message_t__unpack(NULL, bytes_read, buffer);
     // Free the buffer
     free(buffer);
+
+    //  If op is not STATS, increment the number of operations
+   if (message->opcode != MESSAGE_T__OPCODE__OP_STATS) {
+        stats->ops++;
+   }
+    // TODO: check if an operation that result in an error should increment the number of operations
 
     if (!message) {
         perror("Failed to unpack the received message");
