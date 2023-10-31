@@ -18,10 +18,14 @@ Tiago Oliveira - 54979
 #include <sys/types.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <pthread.h>
 
 #include "network_server.h"
 #include "message-private.h"
 #include "table_skel.h"
+
+// Create a variable to sore the table_t pointer
+struct table_t *table_ptr;
 
 
 
@@ -67,48 +71,65 @@ int network_server_init(short port) {
     return sockfd;
 }
 
+void *handle_client(void *arg) {
+    MessageT *request;
+    int client_socket = *(int *)arg;
+
+    while (1) {
+
+        // Receive a message from the client
+        request = network_receive(client_socket);
+        if (request == NULL) {
+            close(client_socket);
+            break;
+        }
+
+        // Process the message received on table_skel
+        int response = invoke(request, table_ptr);
+        if (response < 0) {
+            perror("Failed to process client message");
+            close(client_socket);
+            break;
+        }
+
+        // Send the response to the client
+        if (network_send(client_socket, request) < 0) {
+            perror("Failed to send response to client");
+        }
+
+    }
+
+    // Close client socket
+    close(client_socket);
+    printf("Client connection closed\n");
+
+    return 0;   
+}
+
 int network_main_loop(int listening_socket, struct table_t *table) {
     struct sockaddr_in client_addr;
     socklen_t client_len = sizeof(client_addr);
     int client_socket;
-    MessageT *request;
+    // Save the table_t pointer
+    table_ptr = table;
 
     while ((client_socket = accept(listening_socket, (struct sockaddr*)&client_addr, &client_len)) != -1) { // Keep the server running
 
         printf("Client connection established\n");
+        pthread_t thr;
+        int *i = malloc(sizeof(int));
+        *i = client_socket;
+        pthread_create(&thr, NULL, &handle_client, i);
+        pthread_detach(thr);    
 
-        while (1) {
 
-            // Receive a message from the client
-            request = network_receive(client_socket);
-            if (request == NULL) {
-                close(client_socket);
-                break;
-            }
-
-            // Process the message received on table_skel
-            int response = invoke(request, table);
-            if (response < 0) {
-                perror("Failed to process client message");
-                close(client_socket);
-                break;
-            }
-
-            // Send the response to the client
-            if (network_send(client_socket, request) < 0) {
-                perror("Failed to send response to client");
-            }
-
-        }
-
-        // Close client socket
-        close(client_socket);
-        printf("Client connection closed\n");
-        printf("Server ready, waiting for connections\n");
+        
     }
 
     return 0;
 }
+
+
 
 MessageT *network_receive(int client_socket) {
     int bytes_read;
