@@ -19,6 +19,7 @@ Tiago Oliveira - 54979
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <pthread.h>
+#include <sys/time.h>
 
 #include "network_server.h"
 #include "message-private.h"
@@ -105,8 +106,17 @@ void *handle_client(void *arg) {
             break;
         }
 
+        // Count the time invoke takes with gettimeofday()
+        struct timeval start, end;
+        gettimeofday(&start, NULL);
+
         // Process the message received on table_skel
         int response = invoke(request, table_ptr);
+
+        gettimeofday(&end, NULL);
+        // Add the time to the stats in microseconds
+        stats->time += (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_usec - start.tv_usec);
+
         if (response < 0) {
             perror("Failed to process client message");
             close(client_socket);
