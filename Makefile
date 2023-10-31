@@ -54,6 +54,8 @@ $(SRC_DIR)/sdmessage.pb-c.c $(INC_DIR)/sdmessage.pb-c.h: sdmessage.proto
 	mv sdmessage.pb-c.c $(SRC_DIR)
 	mv sdmessage.pb-c.h $(INC_DIR)
 
+$(OBJ_DIR)/sdmessage.pb-c.o: sdmessage.proto
+
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	mkdir -p $(OBJ_DIR) $(DEP_DIR)
 	$(CC) $(CFLAGS) -o $@ -c $<
