@@ -11,6 +11,7 @@ Tiago Oliveira - 54979
 #include <stdlib.h>
 #include <string.h>
 
+#include "stats.h"
 #include "table_skel.h"
 
 
@@ -188,6 +189,29 @@ int invoke(MessageT *msg, struct table_t *table) {
                 msg->opcode = MESSAGE_T__OPCODE__OP_GETTABLE+1;
                 msg->c_type = MESSAGE_T__C_TYPE__CT_TABLE;
                 return 0;
+            }
+            break;
+
+        // OPERATION STATS
+        case MESSAGE_T__OPCODE__OP_STATS:
+            if (msg->c_type == MESSAGE_T__C_TYPE__CT_NONE) {
+                StatisticsT *stats_t = malloc(sizeof(StatisticsT));
+                if (!stats_t) {
+                    msg->opcode = MESSAGE_T__OPCODE__OP_ERROR;
+                    msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
+                    return -1;
+                }
+
+                statistics_t__init(stats_t);
+                stats_t->ops = stats->ops;
+                stats_t->clients = stats->clients;
+                stats_t->time = stats->time;
+
+                msg->stats = stats_t;
+
+                msg->opcode = MESSAGE_T__OPCODE__OP_STATS+1;
+                msg->c_type = MESSAGE_T__C_TYPE__CT_STATS;
+               
             }
             break;
 
