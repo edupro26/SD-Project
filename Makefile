@@ -17,8 +17,6 @@ TABLE_CLIENT = $(OBJ_DIR)/sdmessage.pb-c.o $(OBJ_DIR)/table_client.o $(OBJ_DIR)/
 TABLE_SERVER = $(OBJ_DIR)/sdmessage.pb-c.o $(OBJ_DIR)/table_server.o $(OBJ_DIR)/network_server.o $(OBJ_DIR)/table_skel.o $(OBJ_DIR)/message.o $(OBJ_DIR)/stats.o
 LIB_OBJ = $(OBJ_DIR)/table.o $(OBJ_DIR)/data.o $(OBJ_DIR)/entry.o $(OBJ_DIR)/list.o
 
-OBJ_TO_DEL = $(OBJ_DIR)/network_client.o $(OBJ_DIR)/client_stub.o $(OBJ_DIR)/client_stub-private.o $(OBJ_DIR)/network_server.o $(OBJ_DIR)/table_skel.o $(OBJ_DIR)/table_skel-private.o $(OBJ_DIR)/table_client.o $(OBJ_DIR)/table_server.o $(OBJ_DIR)/sdmessage.pb-c.o $(OBJ_DIR)/message.o
-
 all: $(EXECS)
 
 libtable: $(LIB_DIR)/libtable.a
