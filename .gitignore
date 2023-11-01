@@ -63,8 +63,3 @@ dkms.conf
 # executables
 binary/**
 
-# Exceptions
-!**/table.o
-!**/entry.o
-!**/data.o
-!**/list.o
