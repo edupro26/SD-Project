@@ -172,7 +172,7 @@ int main(int argc, char **argv) {
             printf("Stats\n");
             printf("Ops: %d\n", stats->ops);
             printf("Clients: %d\n", stats->clients);
-            printf("Uptime: %d\n", stats->time);
+            printf("Total time: %d\n", stats->time);
     
         
             free(command);
