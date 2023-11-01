@@ -38,8 +38,7 @@ int network_server_init(short port) {
     int opt = 1;  // option for setsockopt
     struct sockaddr_in address;
 
-  
-    stats = statistics_init();
+    init_statistics();
 
     
 
@@ -79,7 +78,7 @@ int network_server_init(short port) {
 }
 
 void *handle_client(void *arg) {
-    stats->clients++;
+    update_statistics(0, 1, 0);
     MessageT *request;
     int client_socket = *(int *)arg;
 
@@ -101,7 +100,8 @@ void *handle_client(void *arg) {
 
         gettimeofday(&end, NULL);
         // Add the time to the stats in microseconds
-        stats->time += (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_usec - start.tv_usec);
+        int timeToAdd = (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_usec - start.tv_usec);
+        update_statistics(0, 0, timeToAdd);
 
         if (response < 0) {
             perror("Failed to process client message");
@@ -118,7 +118,7 @@ void *handle_client(void *arg) {
 
     // Close client socket
     close(client_socket);
-    stats->clients--;
+    update_statistics(0, -1, 0);
     printf("Client connection closed\n");
 
 
@@ -183,7 +183,7 @@ MessageT *network_receive(int client_socket) {
 
     //  If op is not STATS, increment the number of operations
    if (message->opcode != MESSAGE_T__OPCODE__OP_STATS) {
-        stats->ops++;
+        update_statistics(1, 0, 0);
    }
     // TODO: check if an operation that result in an error should increment the number of operations
 
@@ -241,26 +241,4 @@ int network_server_close(int socket) {
     }
 
     return 0;
-}
-
-struct statistics_t *statistics_init() {
-    struct statistics_t *stats = malloc(sizeof(struct statistics_t));
-    if (!stats) {
-        perror("Failed to allocate memory for statistics");
-        return NULL;
-    }
-
-    stats->clients = 0;
-    stats->ops = 0;
-    stats->time = 0;
-
-    return stats;
-}
-
-struct statistics_t *statistics_get() {
-    return stats;
-}
-
-void statistics_destroy() {
-    free(stats);
 }

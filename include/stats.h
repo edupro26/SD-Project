@@ -8,13 +8,10 @@ struct statistics_t
     int time;
 };
 
-// Global variable with 0 as default value
-struct statistics_t *stats;
+extern struct statistics_t *stats;
 
-struct statistics_t *statistics_init();
-
-struct statistics_t *statistics_get();
-
-void statistics_destroy();
+void init_statistics(void);
+void update_statistics(int ops, int clients, int time);
+struct statistics_t *get_statistics(void);
 
 #endif
