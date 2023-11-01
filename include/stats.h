@@ -11,4 +11,10 @@ struct statistics_t
 // Global variable with 0 as default value
 struct statistics_t *stats;
 
+struct statistics_t *statistics_init();
+
+struct statistics_t *statistics_get();
+
+void statistics_destroy();
+
 #endif

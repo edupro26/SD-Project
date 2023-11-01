@@ -203,6 +203,7 @@ int invoke(MessageT *msg, struct table_t *table) {
                 }
 
                 statistics_t__init(stats_t);
+                struct statistics_t *stats = statistics_get();
                 stats_t->ops = stats->ops;
                 stats_t->clients = stats->clients;
                 stats_t->time = stats->time;

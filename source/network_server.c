@@ -38,11 +38,8 @@ int network_server_init(short port) {
     int opt = 1;  // option for setsockopt
     struct sockaddr_in address;
 
-    // Initialize stats
-    stats = malloc(sizeof(struct statistics_t));
-    stats->ops = 0;
-    stats->clients = 0;
-    stats->time = 0;
+  
+    stats = statistics_init();
 
     
 
@@ -244,4 +241,26 @@ int network_server_close(int socket) {
     }
 
     return 0;
+}
+
+struct statistics_t *statistics_init() {
+    struct statistics_t *stats = malloc(sizeof(struct statistics_t));
+    if (!stats) {
+        perror("Failed to allocate memory for statistics");
+        return NULL;
+    }
+
+    stats->clients = 0;
+    stats->ops = 0;
+    stats->time = 0;
+
+    return stats;
+}
+
+struct statistics_t *statistics_get() {
+    return stats;
+}
+
+void statistics_destroy() {
+    free(stats);
 }
