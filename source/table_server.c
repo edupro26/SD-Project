@@ -14,6 +14,7 @@ Tiago Oliveira - 54979
 
 #include "network_server.h"
 #include "table_skel.h"
+#include "locks.h"
 
 
 int main(int argc, char **argv) {
@@ -38,6 +39,8 @@ int main(int argc, char **argv) {
         printf("Usage: ./table_server <port> <n_lists>\n");
         return -1;
     }
+
+    locks_init();
 
     // Start server
     int sockfd = network_server_init(port);
@@ -70,6 +73,8 @@ int main(int argc, char **argv) {
         printf("Error closing server\n");
         return -1;
     }
+
+    locks_destroy();
 
     return 0;
 }

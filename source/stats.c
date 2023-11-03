@@ -1,6 +1,8 @@
 #include "stats.h"
 #include <stdlib.h>
 
+#include "locks.h"
+
 struct statistics_t global_stats = {0, 0, 0};
 struct statistics_t *stats = &global_stats;
 
@@ -13,9 +15,11 @@ void init_statistics(void) {
 
 
 void update_statistics(int ops, int clients, int time) {
+    locks_lock_stats();
     stats->ops += ops;
     stats->clients += clients;
     stats->time += time;
+    locks_unlock_stats();
 }
 
 struct statistics_t *get_statistics(void) {

@@ -13,6 +13,7 @@ Tiago Oliveira - 54979
 
 #include "stats.h"
 #include "table_skel.h"
+#include "locks.h"
 
 
 struct table_t *table_skel_init(int n_lists) {
@@ -46,6 +47,7 @@ int invoke(MessageT *msg, struct table_t *table) {
         // OPERATION PUT
         case MESSAGE_T__OPCODE__OP_PUT:
             if (msg->c_type == MESSAGE_T__C_TYPE__CT_ENTRY) {
+                locks_lock();
                 struct data_t *data = data_create(msg->entry->value.len, msg->entry->value.data);
                 int result = table_put(table, msg->entry->key, data);
                 if (result != -1) {
@@ -56,6 +58,7 @@ int invoke(MessageT *msg, struct table_t *table) {
                     msg->opcode = MESSAGE_T__OPCODE__OP_ERROR;
                     msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
                 }
+                locks_unlock();
                 free(data);
             }
             break;
@@ -88,6 +91,7 @@ int invoke(MessageT *msg, struct table_t *table) {
         // OPERATION DEL
         case MESSAGE_T__OPCODE__OP_DEL:
             if (msg->c_type == MESSAGE_T__C_TYPE__CT_KEY) {
+                locks_lock();
                 int result = table_remove(table, msg->key);
                 if (result == 0) {
                     msg->opcode = MESSAGE_T__OPCODE__OP_DEL+1;
@@ -101,6 +105,7 @@ int invoke(MessageT *msg, struct table_t *table) {
                     msg->opcode = MESSAGE_T__OPCODE__OP_ERROR;
                     msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
                 }
+                locks_unlock();
             }
             break;
 
