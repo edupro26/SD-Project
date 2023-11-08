@@ -45,7 +45,7 @@ $(BIN_DIR)/table_client: $(TABLE_CLIENT)
 
 $(BIN_DIR)/table_server: $(TABLE_SERVER)
 	mkdir -p $(BIN_DIR)
-	$(CC) $^ -lprotobuf-c -L$(LIB_DIR) -ltable -o $@
+	$(CC) $^ -lprotobuf-c -lpthread -L$(LIB_DIR) -ltable -o $@
 
 $(SRC_DIR)/sdmessage.pb-c.c $(INC_DIR)/sdmessage.pb-c.h: sdmessage.proto
 	protoc-c --c_out=. $<
