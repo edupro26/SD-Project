@@ -44,8 +44,6 @@ De forma a ter acesso ao comando protoc-c e os ficheiros headers necessários pa
 
 Em sistemas operativos MacOS, deve ser usado o comando `make mac` para gerar os executáveis.
 
----
-
 ### Valgrind
 
 Comandos para executar o Valgrind:
@@ -53,6 +51,8 @@ Comandos para executar o Valgrind:
 `valgrind --leak-check=yes --show-leak-kind=all ./binary/table_server <port> 10`
 
 `valgrind --leak-check=yes --show-leak-kind=all  ./binary/table_client <ip>:<port>`
+
+---
 
 ### Trabalho realizado por:
 
