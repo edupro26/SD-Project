@@ -1,3 +1,13 @@
+/*
+
+Sistemas Distribuidos - Projeto Fase 3
+Grupo 8
+Alexandre Pinto - 55958
+Eduardo Proença  - 57551
+Tiago Oliveira - 54979
+
+*/
+
 #include "locks.h"
 
 static pthread_mutex_t mutex;
