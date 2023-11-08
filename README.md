@@ -46,6 +46,14 @@ Em sistemas operativos MacOS, deve ser usado o comando `make mac` para gerar os 
 
 ---
 
+### Valgrind
+
+Comandos para executar o Valgrind:
+
+`valgrind --leak-check=yes --show-leak-kind=all ./binary/table_server <port> 10`
+
+`valgrind --leak-check=yes --show-leak-kind=all  ./binary/table_client <ip>:<port>`
+
 ### Trabalho realizado por:
 
 **Grupo 8**
