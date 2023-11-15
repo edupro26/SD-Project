@@ -11,13 +11,14 @@ Tiago Oliveira - 54979
 #include <stdio.h>
 #include <stdlib.h>
 
-
+#include <signal.h>
 #include "network_server.h"
 #include "table_skel.h"
 #include "locks.h"
 
 
 int main(int argc, char **argv) {
+    signal(SIGPIPE, SIG_IGN);
     // Check if 2 arguments were passed
     if (argc != 3) {
         printf("Usage: ./table_server <port> <n_lists>\n");
