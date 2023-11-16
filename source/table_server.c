@@ -16,8 +16,28 @@ Tiago Oliveira - 54979
 #include "table_skel.h"
 #include "locks.h"
 
+int sockfd;
+struct table_t *table;
+
+void stop_server(int signum) {
+    if (signum != SIGINT) {
+        return;
+    }
+
+    table_skel_destroy(table);
+    int cls = network_server_close(sockfd);
+
+    if (cls < 0) {
+        printf("Error closing server\n");
+        exit(-1);
+    }
+
+    printf("Server closed\n");
+    exit(0);
+}
 
 int main(int argc, char **argv) {
+    signal(SIGINT, stop_server);
     signal(SIGPIPE, SIG_IGN);
     // Check if 2 arguments were passed
     if (argc != 3) {
@@ -42,7 +62,7 @@ int main(int argc, char **argv) {
     }
 
     // Start server
-    int sockfd = network_server_init(port);
+    sockfd = network_server_init(port);
 
     if (sockfd < 0) {
         printf("Error starting server\n");
@@ -52,7 +72,7 @@ int main(int argc, char **argv) {
     printf("Server ready, waiting for connections\n");
 
     // Initialize table
-    struct table_t *table = table_skel_init(n_lists);
+    table = table_skel_init(n_lists);
 
     if (table == NULL) {
         printf("Error initializing table\n");
@@ -76,4 +96,6 @@ int main(int argc, char **argv) {
 
     return 0;
 }
+
+
 
