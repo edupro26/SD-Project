@@ -10,84 +10,50 @@ Tiago Oliveira - 54979
 
 #include "locks.h"
 
-static pthread_mutex_t mutex;
-static pthread_mutex_t mutex_stats;
-
-void locks_init() {
-    pthread_mutex_init(&mutex, NULL);
-    pthread_mutex_init(&mutex_stats, NULL);
-}
-
-void locks_destroy() {
-    pthread_mutex_destroy(&mutex);
-    pthread_mutex_destroy(&mutex_stats);
-}
-
-void locks_lock() {
-    pthread_mutex_lock(&mutex);
-}
-
-void locks_unlock() {
-    pthread_mutex_unlock(&mutex);
-}
-
-void locks_lock_stats() {
-    pthread_mutex_lock(&mutex_stats);
-}
-
-void locks_unlock_stats() {
-    pthread_mutex_unlock(&mutex_stats);
-}
-
-
-typedef struct {
-    pthread_mutex_t mutex;
-    pthread_cond_t read, put;
-    int reads, puts, wputs;
-} locks_t;
-locks_t lock;
-
-void init_data_lock(locks_t *lock) {
+struct locks_t* init_lock() {
+    struct locks_t *lock = (struct locks_t *) malloc(sizeof(struct locks_t));
     pthread_mutex_init(&lock->mutex, NULL);
     pthread_cond_init(&lock->read, NULL);
-    pthread_cond_init(&lock->put, NULL);
-    lock->reads = lock->puts = lock->wputs = 0;
+    pthread_cond_init(&lock->write, NULL);
+    lock->reads = lock->writes = lock->wwrites = 0;
+
+    return lock;
 }
 
-void get(locks_t *lock) {
+void readLock(struct locks_t *lock) {
     pthread_mutex_lock(&lock->mutex);
-    while (lock->puts > 0 || lock->wputs > 0) {
+    while (lock->writes > 0 || lock->wwrites > 0) {
         pthread_cond_wait(&lock->read, &lock->mutex);
     }
     lock->reads++;
     pthread_mutex_unlock(&lock->mutex);
 }
 
-void leaveGet(locks_t *lock) {
+void leaveRead(struct locks_t *lock) {
     pthread_mutex_lock(&lock->mutex);
     lock->reads--;
-    if (lock->reads == 0 && lock->wputs > 0) {
-        pthread_cond_signal(&lock->put);
+    if (lock->reads == 0 && lock->wwrites > 0) {
+        pthread_cond_signal(&lock->write);
     }
     pthread_mutex_unlock(&lock->mutex);
 }
 
-void put(locks_t *lock) {
+void writeLock(struct locks_t *lock) {
     pthread_mutex_lock(&lock->mutex);
-    lock->wputs++;
-    while (lock->reads > 0 || lock->puts > 0) {
-        pthread_cond_wait(&lock->put, &lock->mutex);
+    lock->wwrites++;
+    while (lock->reads > 0 || lock->writes > 0) {
+        pthread_cond_wait(&lock->write, &lock->mutex);
     }
-    lock->wputs--;
-    lock->puts++;
+    lock->wwrites--;
+    lock->writes++;
     pthread_mutex_unlock(&lock->mutex);
 }
 
-void leavePut(locks_t *lock) {
+void leaveWrite(struct locks_t *lock) {
     pthread_mutex_lock(&lock->mutex);
-    lock->puts--;
-    if (lock->wputs > 0) {
-        pthread_cond_signal(&lock->put);
+    lock->writes--;
+    if (lock->wwrites > 0) {
+        pthread_cond_signal(&lock->write);
     } else {
         pthread_cond_broadcast(&lock->read);
     }

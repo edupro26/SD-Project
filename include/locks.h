@@ -12,12 +12,23 @@ Tiago Oliveira - 54979
 #define LOCKS_H
 
 #include <pthread.h>
+#include <stdlib.h>
 
-void locks_init();
-void locks_destroy();
-void locks_lock();
-void locks_unlock();
-void locks_lock_stats();
-void locks_unlock_stats();
+struct locks_t {
+    pthread_mutex_t mutex;
+    pthread_cond_t read, write;
+    int reads, writes, wwrites;
+};
+
+struct locks_t* init_lock();
+
+void readLock(struct locks_t *lock);
+
+void leaveRead(struct locks_t *lock);
+
+void writeLock(struct locks_t *lock);
+
+void leaveWrite(struct locks_t *lock);
+
 
 #endif
