@@ -60,3 +60,12 @@ void leaveWrite(struct locks_t *lock) {
     pthread_mutex_unlock(&lock->mutex);
 }
 
+void destroy_lock(struct locks_t *lock) {
+    pthread_mutex_destroy(&lock->mutex);
+    pthread_cond_destroy(&lock->read);
+    pthread_cond_destroy(&lock->write);
+    free(lock);
+}
+
+
+

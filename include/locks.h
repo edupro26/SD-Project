@@ -30,5 +30,7 @@ void writeLock(struct locks_t *lock);
 
 void leaveWrite(struct locks_t *lock);
 
+void destroy_lock(struct locks_t *lock);
+
 
 #endif

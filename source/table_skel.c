@@ -37,6 +37,9 @@ int table_skel_destroy(struct table_t *table) {
         return -1;
     }
 
+    // Destroy locks
+    destroy_lock(lock_data_ptr);
+
     // Destroy table and all memory allocated
     return table_destroy(table);
 }

@@ -25,3 +25,7 @@ struct statistics_t* init_statistics() {
 
     return stats;
 }
+
+void destroy_statistics() {
+    free(stats);
+}

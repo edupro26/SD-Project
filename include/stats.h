@@ -24,8 +24,6 @@ extern struct statistics_t *stats;
 
 struct statistics_t* init_statistics();
 
-void update_statistics(int ops, int clients, int time);
-
-struct statistics_t *get_statistics(void);
+void destroy_statistics();
 
 #endif

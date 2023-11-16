@@ -253,6 +253,12 @@ int network_send(int client_socket, MessageT *msg) {
 
 int network_server_close(int socket) {
 
+    // Destroy locks
+    destroy_lock(locks_stats_ptr);
+
+    // Destroy stats
+    destroy_statistics();
+
     // Close socket
     if (close(socket) < 0) {
         perror("Failed to close the socket");
