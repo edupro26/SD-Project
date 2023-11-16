@@ -25,10 +25,11 @@ Tiago Oliveira - 54979
 #include "message-private.h"
 #include "table_skel.h"
 #include "stats.h"
+#include "locks.h"
 
 // Create a variable to sore the table_t pointer
 struct table_t *table_ptr;
-
+struct locks_t *locks_stats_ptr;
 
 
 
@@ -38,7 +39,8 @@ int network_server_init(short port) {
     int opt = 1;  // option for setsockopt
     struct sockaddr_in address;
 
-    init_statistics();
+    stats = init_statistics();
+    locks_stats_ptr = init_lock();
 
     
 
@@ -78,7 +80,12 @@ int network_server_init(short port) {
 }
 
 void *handle_client(void *arg) {
-    update_statistics(0, 1, 0);
+    //update_statistics(0, 1, 0);
+
+    writeLock(locks_stats_ptr);
+    stats->clients++;
+    leaveWrite(locks_stats_ptr);
+
     MessageT *request;
     int client_socket = *(int *)arg;
 
@@ -101,7 +108,13 @@ void *handle_client(void *arg) {
         gettimeofday(&end, NULL);
         // Add the time to the stats in microseconds
         int timeToAdd = (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_usec - start.tv_usec);
-        update_statistics(0, 0, timeToAdd);
+
+        // Only and time if the it is not a stats operation
+        if (request->opcode != MESSAGE_T__OPCODE__OP_STATS) {
+            writeLock(locks_stats_ptr);
+            stats->time += timeToAdd;
+            leaveWrite(locks_stats_ptr);
+        }
 
         if (response < 0) {
             perror("Failed to process client message");
@@ -118,7 +131,11 @@ void *handle_client(void *arg) {
 
     // Close client socket
     close(client_socket);
-    update_statistics(0, -1, 0);
+    
+    writeLock(locks_stats_ptr);
+    stats->clients--;
+    leaveWrite(locks_stats_ptr);
+
     printf("Client connection closed\n");
 
 
@@ -183,7 +200,9 @@ MessageT *network_receive(int client_socket) {
 
     //  If op is not STATS, increment the number of operations
    if (message->opcode != MESSAGE_T__OPCODE__OP_STATS) {
-        update_statistics(1, 0, 0);
+        writeLock(locks_stats_ptr);
+        stats->ops++;
+        leaveWrite(locks_stats_ptr);
    }
     // TODO: check if an operation that result in an error should increment the number of operations
 

@@ -15,6 +15,7 @@ Tiago Oliveira - 54979
 #include "table_skel.h"
 #include "locks.h"
 
+struct locks_t *lock_data_ptr;
 
 struct table_t *table_skel_init(int n_lists) {
     // Create table
@@ -22,6 +23,9 @@ struct table_t *table_skel_init(int n_lists) {
     if (table == NULL) {
         return NULL;
     }
+
+    // Initialize locks
+    lock_data_ptr = init_lock();
 
     return table;
 }
@@ -47,7 +51,7 @@ int invoke(MessageT *msg, struct table_t *table) {
         // OPERATION PUT
         case MESSAGE_T__OPCODE__OP_PUT:
             if (msg->c_type == MESSAGE_T__C_TYPE__CT_ENTRY) {
-                locks_lock();
+                writeLock(lock_data_ptr);
                 struct data_t *data = data_create(msg->entry->value.len, msg->entry->value.data);
                 int result = table_put(table, msg->entry->key, data);
                 if (result != -1) {
@@ -58,7 +62,7 @@ int invoke(MessageT *msg, struct table_t *table) {
                     msg->opcode = MESSAGE_T__OPCODE__OP_ERROR;
                     msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
                 }
-                locks_unlock();
+                leaveWrite(lock_data_ptr);
                 free(data);
             }
             break;
@@ -66,6 +70,7 @@ int invoke(MessageT *msg, struct table_t *table) {
         // OPERATION GET
         case MESSAGE_T__OPCODE__OP_GET:
             if (msg->c_type == MESSAGE_T__C_TYPE__CT_KEY) {
+                readLock(lock_data_ptr);
                 struct data_t *result_data = table_get(table, msg->key);
 
                 if (result_data) {
@@ -85,13 +90,15 @@ int invoke(MessageT *msg, struct table_t *table) {
                     msg->opcode = MESSAGE_T__OPCODE__OP_ERROR;
                     msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
                 }
+                leaveRead(lock_data_ptr);
             }
+            
             break;
 
         // OPERATION DEL
         case MESSAGE_T__OPCODE__OP_DEL:
             if (msg->c_type == MESSAGE_T__C_TYPE__CT_KEY) {
-                locks_lock();
+                writeLock(lock_data_ptr);
                 int result = table_remove(table, msg->key);
                 if (result == 0) {
                     msg->opcode = MESSAGE_T__OPCODE__OP_DEL+1;
@@ -105,13 +112,14 @@ int invoke(MessageT *msg, struct table_t *table) {
                     msg->opcode = MESSAGE_T__OPCODE__OP_ERROR;
                     msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
                 }
-                locks_unlock();
+                leaveWrite(lock_data_ptr);
             }
             break;
 
         // OPERATION SIZE
         case MESSAGE_T__OPCODE__OP_SIZE:
             if (msg->c_type == MESSAGE_T__C_TYPE__CT_NONE) {
+                readLock(lock_data_ptr);
                 int size = table_size(table);
                 if (size >= 0) {
                     msg->opcode = MESSAGE_T__OPCODE__OP_SIZE+1;
@@ -121,12 +129,14 @@ int invoke(MessageT *msg, struct table_t *table) {
                     msg->opcode = MESSAGE_T__OPCODE__OP_ERROR;
                     msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
                 }
+                leaveRead(lock_data_ptr);
             }
             break;
 
         // OPERATION GETKEYS
         case MESSAGE_T__OPCODE__OP_GETKEYS:
             if (msg->c_type == MESSAGE_T__C_TYPE__CT_NONE) {
+                readLock(lock_data_ptr);
                 char **keys = table_get_keys(table);
                 if (keys) {
                     int count;
@@ -139,12 +149,14 @@ int invoke(MessageT *msg, struct table_t *table) {
                     msg->opcode = MESSAGE_T__OPCODE__OP_ERROR;
                     msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
                 }
+                leaveRead(lock_data_ptr);
             }
             break;
         
         //OPERATION GETTABLE
         case MESSAGE_T__OPCODE__OP_GETTABLE:
             if (msg->c_type == MESSAGE_T__C_TYPE__CT_NONE) {
+                readLock(lock_data_ptr);
                 // Get all keys
                 char **keys = table_get_keys(table);
                 int num_keys = table_size(table);
@@ -155,6 +167,7 @@ int invoke(MessageT *msg, struct table_t *table) {
                     table_free_keys(keys);
                     msg->opcode = MESSAGE_T__OPCODE__OP_ERROR;
                     msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
+                    leaveRead(lock_data_ptr);
                     return -1;
                 }
 
@@ -172,6 +185,7 @@ int invoke(MessageT *msg, struct table_t *table) {
                         table_free_keys(keys);
                         msg->opcode = MESSAGE_T__OPCODE__OP_ERROR;
                         msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
+                        leaveRead(lock_data_ptr);
                         return -1;
                     }
                     entry_t__init(entry);
@@ -193,6 +207,7 @@ int invoke(MessageT *msg, struct table_t *table) {
                 msg->n_entries = num_keys;
                 msg->opcode = MESSAGE_T__OPCODE__OP_GETTABLE+1;
                 msg->c_type = MESSAGE_T__C_TYPE__CT_TABLE;
+                leaveRead(lock_data_ptr);
                 return 0;
             }
             break;
@@ -200,15 +215,13 @@ int invoke(MessageT *msg, struct table_t *table) {
         // OPERATION STATS
         case MESSAGE_T__OPCODE__OP_STATS:
             if (msg->c_type == MESSAGE_T__C_TYPE__CT_NONE) {
+
                 StatisticsT *stats_t = malloc(sizeof(StatisticsT));
-                if (!stats_t) {
-                    msg->opcode = MESSAGE_T__OPCODE__OP_ERROR;
-                    msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
-                    return -1;
-                }
 
                 statistics_t__init(stats_t);
-                struct statistics_t *stats = get_statistics();
+            
+               
+
                 stats_t->ops = stats->ops;
                 stats_t->clients = stats->clients;
                 stats_t->time = stats->time;

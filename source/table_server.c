@@ -41,8 +41,6 @@ int main(int argc, char **argv) {
         return -1;
     }
 
-    locks_init();
-
     // Start server
     int sockfd = network_server_init(port);
 
@@ -75,7 +73,6 @@ int main(int argc, char **argv) {
         return -1;
     }
 
-    locks_destroy();
 
     return 0;
 }
