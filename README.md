@@ -16,11 +16,17 @@ O diretório do projeto é consituído pelos seguintes subdiretórios:
 De forma a eliminar os ficheiros gerados pela compilação, basta correr o comando `make clean` na pasta root do projeto. 
 
 ### Desenvolvimento
+
+#### Fase 2
+
 - Foram desenvolvidas as funções read_all e write_all de forma a garantir a leitura e escrita de todos os bytes pretendidos.
 - É chamada a função `signal` para ignorar o sinal SIGPIPE, de forma a que o programa não termine caso o cliente feche a ligação.
 - Usamos a função `setsockopt` para permitir que o servidor reutilize o endereço e porta do socket, de forma a que o servidor possa ser reiniciado sem ter que esperar que o socket seja libertado.
 - Em caso de erro em qualquer uma das partes do código do servidor durante o processamento de uma mensagem, é enviado a mensagem ao cliente e o servidor continua a correr.
 - Implementamos a conexão ao servidor através de hostname (nome do servidor) e porta, além de apenas através do endereço IPv4.
+
+#### Fase 3
+
 
 ### Entrega
 
