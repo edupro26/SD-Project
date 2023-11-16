@@ -27,6 +27,15 @@ De forma a eliminar os ficheiros gerados pela compilação, basta correr o coman
 
 #### Fase 3
 
+Nesta fase, a conexão de vários cliente é possível através do use de threads com um thread para cada cliente. Para isso, foi criada a função `handle_client` que contêm grande parte da lógica que estava presente na função `network_main_loop` que recebe e envia mensagens do cliente conectado. Assim, a função `network_main_loop` apenas fica responsável por aceitar novas conexões e criar um thread para cada cliente que se conecta ao servidor.
+
+Foi criada uma nova operação executada com o comanda `stats` que permite obter o número de clientes conectados ao servidor, numero de operações realizada na tabela (leitura e escrita) e o tempo total consumido a realizar essas operações. Para isso foi criada a estrutura `statistics_t`. Os valores são atualizados nas funções do módulo `network_server` à medida que mensagens são recebidas e enviadas bem como quando um cliente se conecta ou desconecta do servidor.
+
+Com o uso de multiplas threads, a concorrência é um problema que pode ocorrer. Para resolver este problema usamos mutexes para garantir que apenas uma thread pode escrever na tabela de cada vez e também para garantir que apenas uma thread pode escrever nas estatísticas de cada vez. No caso de leitura, se estiver a ser feita uma escrita, a leitura é bloqueada até que a escrita termine. 
+Para implementar os mutexes, foi criado o modulo `locks` que contêm definida a estrutura `locks_t` que conêm os mutexes, os contadores, e as variáveis de condição para cada um dos mutexes. A estrutura é inicializada na função `locks_init` e é libertada a memória na função `destroy_lock`. Os contadores guardam quantas threads estão a ler, escrever ou à espera de escrever. As variáveis de condição são usadas para bloquear as threads que estão à espera de escrever ou ler.
+É incializado uma estrutura locks_t para escritas/leituras na tabela e outra para escritas/leituras nas estatísticas.
+
+Foi ainda implementado a uma função que termina o servidor ao receber signais SIGINT. Desta forma, o servidor ao ser terminado via CTRL+C, este termina de forma correta, libertando a memória alocada e fechando o socket.
 
 ### Entrega
 
