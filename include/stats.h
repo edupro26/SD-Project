@@ -11,6 +11,8 @@ Tiago Oliveira - 54979
 #ifndef _STATISTICS_PRIVATE_H_
 #define _STATISTICS_PRIVATE_H_
 
+#include <stdlib.h>
+
 struct statistics_t
 {
     int ops;
@@ -20,8 +22,10 @@ struct statistics_t
 
 extern struct statistics_t *stats;
 
-void init_statistics(void);
+struct statistics_t* init_statistics();
+
 void update_statistics(int ops, int clients, int time);
+
 struct statistics_t *get_statistics(void);
 
 #endif

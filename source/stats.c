@@ -13,25 +13,15 @@ Tiago Oliveira - 54979
 
 #include "locks.h"
 
-struct statistics_t global_stats = {0, 0, 0};
-struct statistics_t *stats = &global_stats;
+struct statistics_t *stats;
 
-void init_statistics(void) {
+
+struct statistics_t* init_statistics() {
+    struct statistics_t *stats = (struct statistics_t *) malloc(sizeof(struct statistics_t));
     // Already initialized globally, but you can reset values here if needed
     stats->ops = 0;
     stats->clients = 0;
     stats->time = 0;
-}
 
-
-void update_statistics(int ops, int clients, int time) {
-    locks_lock_stats();
-    stats->ops += ops;
-    stats->clients += clients;
-    stats->time += time;
-    locks_unlock_stats();
-}
-
-struct statistics_t *get_statistics(void) {
     return stats;
 }
