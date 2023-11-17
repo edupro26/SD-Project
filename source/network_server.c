@@ -31,7 +31,12 @@ Tiago Oliveira - 54979
 struct table_t *table_ptr;
 struct locks_t *locks_stats_ptr;
 
+struct ClientSocketNode {
+    int* i;
+    struct ClientSocketNode* next;
+};
 
+struct ClientSocketNode* client_socket_list = NULL;
 
 
 int network_server_init(short port) {
@@ -151,12 +156,25 @@ int network_main_loop(int listening_socket, struct table_t *table) {
 
     while ((client_socket = accept(listening_socket, (struct sockaddr*)&client_addr, &client_len)) != -1) { // Keep the server running
 
+        struct ClientSocketNode* new_node = (struct ClientSocketNode*)malloc(sizeof(struct ClientSocketNode));
+
+        if (new_node == NULL) {
+        perror("malloc");
+        close(client_socket); // Close the new client socket on error
+        return -1;
+        }    
+
         printf("Client connection established\n");
         pthread_t thr;
         int *i = malloc(sizeof(int));
         *i = client_socket;
-        pthread_create(&thr, NULL, &handle_client, i);
-        pthread_detach(thr);    
+        new_node->i = i;
+        pthread_create(&thr, NULL, &handle_client, new_node->i);
+        pthread_detach(thr);
+        
+        new_node->next = client_socket_list;
+        client_socket_list = new_node;
+        
 
 
         
@@ -258,11 +276,24 @@ int network_server_close(int socket) {
 
     // Destroy stats
     destroy_statistics();
-
+    
     // Close socket
     if (close(socket) < 0) {
         perror("Failed to close the socket");
         return -1;
+    }
+
+    struct ClientSocketNode* current = client_socket_list;
+
+    while (current != NULL) {
+        printf("Inside loop");
+        struct ClientSocketNode* temp = current;
+        current = current->next;
+        if (temp->i != NULL) {
+            free(temp->i);
+        }
+
+        free(temp);
     }
 
     return 0;
