@@ -174,7 +174,9 @@ int main(int argc, char **argv) {
             printf("Clients: %d\n", stats->clients);
             printf("Total time: %d\n", stats->time);
     
-        
+            // Free stats memory
+            free(stats);
+            
             free(command);
         }
         // quit
