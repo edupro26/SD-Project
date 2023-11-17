@@ -110,7 +110,7 @@ void *handle_client(void *arg) {
         int timeToAdd = (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_usec - start.tv_usec);
 
         // Only and time if the it is not a stats operation
-        if (request->opcode != MESSAGE_T__OPCODE__OP_STATS) {
+        if (request->opcode != MESSAGE_T__OPCODE__OP_STATS + 1) {
             writeLock(locks_stats_ptr);
             stats->time += timeToAdd;
             leaveWrite(locks_stats_ptr);
