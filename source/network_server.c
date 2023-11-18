@@ -8,6 +8,9 @@ Tiago Oliveira - 54979
 
 */
 
+
+#include <signal.h>
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -33,6 +36,7 @@ struct locks_t *locks_stats_ptr;
 
 struct ClientSocketNode {
     int* i;
+    pthread_t thr;
     struct ClientSocketNode* next;
 };
 
@@ -85,7 +89,6 @@ int network_server_init(short port) {
 }
 
 void *handle_client(void *arg) {
-    //update_statistics(0, 1, 0);
 
     writeLock(locks_stats_ptr);
     stats->clients++;
@@ -143,6 +146,8 @@ void *handle_client(void *arg) {
 
     printf("Client connection closed\n");
 
+    // Exit thread
+    pthread_exit(NULL);
 
     return 0;   
 }
@@ -165,12 +170,10 @@ int network_main_loop(int listening_socket, struct table_t *table) {
         }    
 
         printf("Client connection established\n");
-        pthread_t thr;
         int *i = malloc(sizeof(int));
         *i = client_socket;
         new_node->i = i;
-        pthread_create(&thr, NULL, &handle_client, new_node->i);
-        pthread_detach(thr);
+        pthread_create(&new_node->thr, NULL, &handle_client, new_node->i);
         
         new_node->next = client_socket_list;
         client_socket_list = new_node;
@@ -271,30 +274,47 @@ int network_send(int client_socket, MessageT *msg) {
 
 int network_server_close(int socket) {
 
-    // Destroy locks
-    destroy_lock(locks_stats_ptr);
+    struct ClientSocketNode* current = client_socket_list;
 
-    // Destroy stats
-    destroy_statistics();
-    
+    while (current != NULL) {
+
+        printf("Inside loop\n");
+        
+
+        struct ClientSocketNode* temp = current;
+        current = current->next;
+        
+
+        if (temp->i != NULL) {
+                pthread_cancel(temp->thr);
+                
+
+                // Wait for the thread to close
+                pthread_join(temp->thr, NULL);
+
+                
+              
+            free(temp->i);
+        }
+
+       
+        
+
+        free(temp);
+    }
+
+
     // Close socket
     if (close(socket) < 0) {
         perror("Failed to close the socket");
         return -1;
     }
 
-    struct ClientSocketNode* current = client_socket_list;
+    // Destroy locks
+    destroy_lock(locks_stats_ptr);
 
-    while (current != NULL) {
-        printf("Inside loop");
-        struct ClientSocketNode* temp = current;
-        current = current->next;
-        if (temp->i != NULL) {
-            free(temp->i);
-        }
-
-        free(temp);
-    }
+    // Destroy stats
+    destroy_statistics();
 
     return 0;
 }
