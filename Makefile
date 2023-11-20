@@ -63,5 +63,4 @@ include $(wildcard $(DEP_DIR)/*.d)
 clean:
 	rm -f $(EXECS) $(OBJ_DIR)/* $(LIB_DIR)/* $(DEP_DIR)/* $(SRC_DIR)/sdmessage.pb-c.c $(INC_DIR)/sdmessage.pb-c.h
 
-
-.PHONY: all clean
+.PHONY: all clean libtable

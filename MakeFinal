@@ -45,11 +45,9 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	mkdir -p $(OBJ_DIR) $(DEP_DIR)
 	$(CC) $(CFLAGS) -o $@ -c $<
 
-
-
 include $(wildcard $(DEP_DIR)/*.d)
 
 clean:
-	rm -f $(EXECS) $(OBJ_TO_DEL) $(LIB_DIR)/* $(DEP_DIR)/* $(SRC_DIR)/sdmessage.pb-c.c $(INC_DIR)/sdmessage.pb-c.h
+	rm -f $(EXECS) $(OBJ_DIR)/* $(LIB_DIR)/* $(DEP_DIR)/* $(SRC_DIR)/sdmessage.pb-c.c $(INC_DIR)/sdmessage.pb-c.h
 
 .PHONY: all clean libtable
