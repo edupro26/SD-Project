@@ -175,6 +175,8 @@ int network_main_loop(int listening_socket, struct table_t *table) {
         new_node->i = i;
         pthread_create(&new_node->thr, NULL, &handle_client, new_node->i);
         
+        // Save the node with the thread and socket id to ensure the liberation of resources 
+        // when the server terminates
         new_node->next = client_socket_list;
         client_socket_list = new_node;
         
@@ -286,19 +288,14 @@ int network_server_close(int socket) {
         
 
         if (temp->i != NULL) {
+                // Order the thread to close 
                 pthread_cancel(temp->thr);
                 
-
-                // Wait for the thread to close
+                // Wait for the thread to close and liberate its resources
                 pthread_join(temp->thr, NULL);
 
-                
-              
             free(temp->i);
         }
-
-       
-        
 
         free(temp);
     }

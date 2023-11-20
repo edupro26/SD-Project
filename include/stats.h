@@ -20,10 +20,14 @@ struct statistics_t
     int time;
 };
 
+// Extern variable that will allow every method that needs to read or write to stats data
+// acccess to it
 extern struct statistics_t *stats;
 
+// Function that will initiate the statistics_t struct and allocate memory for it
 struct statistics_t* init_statistics();
 
+// Function that will free the memory allocated for the statistics_t struct
 void destroy_statistics();
 
 #endif
