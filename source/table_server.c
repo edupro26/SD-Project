@@ -15,9 +15,14 @@ Tiago Oliveira - 54979
 #include "network_server.h"
 #include "table_skel.h"
 #include "locks.h"
+#include "zk_server.h"
+
 
 int sockfd;
 struct table_t *table;
+
+
+
 
 void stop_server(int signum) {
     if (signum != SIGINT) {
@@ -44,6 +49,11 @@ int main(int argc, char **argv) {
         printf("Usage: ./table_server <port> <n_lists>\n");
         return -1;
     }
+
+    // Init zookeeper. Passing the second argument to the function
+    // will create a znode with the server address and port
+    // zk_init(argv[3]);
+    zk_init("127.0.0.1:2181", argv[1]);
 
     // Verify if first argument is a valid port
     unsigned short port = atoi(argv[1]);
