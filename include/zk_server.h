@@ -1,6 +1,6 @@
 /*
 
-Sistemas Distribuidos - Projeto Fase 3
+Sistemas Distribuidos - Projeto Fase 4
 Grupo 8
 Alexandre Pinto - 55958
 Eduardo Proença  - 57551
@@ -11,6 +11,8 @@ Tiago Oliveira - 54979
 #ifndef ZK_SERVER_H
 #define ZK_SERVER_H
 
+#include <stdio.h>
+#include <string.h>
 
 #include "zookeeper/zookeeper.h"
 

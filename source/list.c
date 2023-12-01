@@ -1,6 +1,6 @@
 /* 
 
-Sistemas Distribuidos - Projeto Fase 3
+Sistemas Distribuidos - Projeto Fase 4
 Grupo 8
 Alexandre Pinto - 55958
 Eduardo Proença  - 57551
