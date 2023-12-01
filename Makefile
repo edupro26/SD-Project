@@ -14,7 +14,7 @@ LDFLAGS = $(MAC_LINK_FLAGS)
 EXECS = libtable $(BIN_DIR)/table_server $(BIN_DIR)/table_client
 
 TABLE_CLIENT = $(OBJ_DIR)/sdmessage.pb-c.o $(OBJ_DIR)/table_client.o $(OBJ_DIR)/client_stub.o $(OBJ_DIR)/network_client.o $(OBJ_DIR)/message.o
-TABLE_SERVER = $(OBJ_DIR)/sdmessage.pb-c.o $(OBJ_DIR)/table_server.o $(OBJ_DIR)/network_server.o $(OBJ_DIR)/table_skel.o $(OBJ_DIR)/message.o $(OBJ_DIR)/stats.o $(OBJ_DIR)/locks.o
+TABLE_SERVER = $(OBJ_DIR)/sdmessage.pb-c.o $(OBJ_DIR)/table_server.o $(OBJ_DIR)/network_server.o $(OBJ_DIR)/table_skel.o $(OBJ_DIR)/message.o $(OBJ_DIR)/stats.o $(OBJ_DIR)/locks.o $(OBJ_DIR)/zk_server.o
 LIB_OBJ = $(OBJ_DIR)/table.o $(OBJ_DIR)/data.o $(OBJ_DIR)/entry.o $(OBJ_DIR)/list.o
 
 all: $(EXECS)
@@ -41,11 +41,11 @@ mac: libtable mac-table-client mac-table-server
 
 $(BIN_DIR)/table_client: $(TABLE_CLIENT)
 	mkdir -p $(BIN_DIR)
-	$(CC) $^ -lprotobuf-c -L$(LIB_DIR) -ltable -o $@
+	$(CC) $^ -D THREADED -lprotobuf-c -lzookeeper_mt -L$(LIB_DIR) -ltable -o $@
 
 $(BIN_DIR)/table_server: $(TABLE_SERVER)
 	mkdir -p $(BIN_DIR)
-	$(CC) $^ -lprotobuf-c -lpthread -L$(LIB_DIR) -ltable -o $@
+	$(CC) $^ -D THREADED  -lprotobuf-c -lpthread -lzookeeper_mt -L$(LIB_DIR) -ltable -o $@
 
 $(SRC_DIR)/sdmessage.pb-c.c $(INC_DIR)/sdmessage.pb-c.h: sdmessage.proto
 	protoc-c --c_out=. $<
