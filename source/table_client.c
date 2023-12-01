@@ -18,7 +18,49 @@ Tiago Oliveira - 54979
 #include "client_stub-private.h"
 #include "entry.h"
 #include "stats.h"
+#include "zookeeper/zookeeper.h"
 
+static zhandle_t *zh;
+
+struct rtable_pair_t {
+    struct rtable* read;
+    struct rtable* write;
+};
+
+struct String_vector children;
+
+struct rtable_pair_t *zk_init(char *address_port) {
+    struct rtable_pair_t *rtable_pair = (struct rtable_pair_t *) malloc(sizeof(struct rtable_pair_t));
+    const char* zoo_root = "/"; 
+    // Get nodes from zookeeper
+    // If one node, read and write point to the same node
+    // if two or more nodes, read points to the first node and write points to the last node
+
+    // Connect to zookeeper
+    zh = zookeeper_init(address_port, NULL, 10000, 0, 0, 0);
+
+    if (zh == NULL) {
+        printf("Error connecting to zookeeper\n");
+        return NULL;
+    }
+
+    // Get children
+    int retval = zoo_get_children(zh, zoo_root, 0, &children);
+    
+    if (retval != ZOK)	{
+		fprintf(stderr, "Error retrieving znode from path %s!\n", zoo_root);
+	    exit(EXIT_FAILURE);
+	}
+
+    // Print children
+    printf("Children: ");
+    for (int i = 0; i < children.count; i++) {
+        printf("%s ", children.data[i]);
+    }
+    printf("\n");
+
+    return rtable_pair;
+}
 
 int main(int argc, char **argv) {
     signal(SIGPIPE, SIG_IGN);
@@ -27,6 +69,9 @@ int main(int argc, char **argv) {
         printf("Usage: ./table_client <server>:<port>\n");
         return -1;
     }
+
+    // Connect to zookeeper
+    struct rtable_pair_t *rtable_pair = zk_init(argv[1]);
 
     struct rtable_t *rtable = rtable_connect(argv[1]);
     if (rtable == NULL) {
