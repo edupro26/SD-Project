@@ -4,20 +4,40 @@ FROM ubuntu:22.04
 # Set environment variables to suppress debconf warnings
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Update package list and install build-essential (includes GCC and Make)
-# Install valgrind, protobuf-c-compiler, and libprotobuf-c-dev
+# Update and install dependencies
+
+
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     build-essential \
-    git \
     valgrind \
+    libzookeeper-mt-dev \
     protobuf-c-compiler \
+    default-jre \
+    wget \
     libprotobuf-c-dev && \
     # Clean up the package lists to reduce image size
     rm -rf /var/lib/apt/lists/*
 
+
 # Set the working directory in the container
 WORKDIR /app
+
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Download and extract Zookeeper, then move the configuration file
+RUN wget --no-check-certificate https://archive.apache.org/dist/zookeeper/zookeeper-3.5.9/apache-zookeeper-3.5.9-bin.tar.gz && \
+    tar xvzf apache-zookeeper-3.5.9-bin.tar.gz && \
+    mv apache-zookeeper-3.5.9-bin zk && \
+    mv zk/conf/zoo_sample.cfg zk/conf/zoo.cfg
+
+# Copy the local directory contents into the container at /app
+COPY . /app
+
+
+
 
 # Copy the local directory contents into the container at /app
 COPY . /app
