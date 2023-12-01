@@ -1,6 +1,10 @@
 
 # TODO
 
+# Client
+O Client tem que passar a conectar-se ao zk para saber a que server se tem que connectar. Um server para escrita outro para leitura
+O Server tem que conectar-se ao zookeeper para dar conhecimento ao zookeeper da sua existencia
+
 
 # Messages
 ## PUT
