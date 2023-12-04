@@ -24,7 +24,7 @@ struct table_t *table_ptr2 = NULL;
 
 struct rtable_t *rtable;
 
-void zk_init(short port, struct table_t *table_pointer, char *address_port) {
+void zk_init(char *ip, short port, struct table_t *table_pointer, char *address_port) {
     // Save rtble pointer
     table_ptr2 = table_pointer;
 
@@ -60,7 +60,7 @@ void zk_init(short port, struct table_t *table_pointer, char *address_port) {
 		
             char* data = malloc (ZDATALEN);
             // Put IP and port in data
-            strcat(data, "127.0.0.1");
+            strcat(data, ip);
             strcat(data, ":");
             strcat(data, port_str);
 			if (ZOK != zoo_create(zh, node_path, data, strlen(data), & ZOO_OPEN_ACL_UNSAFE, ZOO_EPHEMERAL | ZOO_SEQUENCE, new_path, new_path_len)) {

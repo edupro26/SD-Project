@@ -47,6 +47,30 @@ struct ClientSocketNode* client_socket_list = NULL;
 short server_port;
 
 
+/* Function to retrieve the ip or hostmane of the machine  */
+char *get_ip() {
+    char hostname[1024];
+    char *ip = malloc(16);
+    if (gethostname(hostname, 1024) < 0) {
+        perror("Failed to get hostname");
+        return NULL;
+    }
+
+    struct hostent *host_entry;
+    if ((host_entry = gethostbyname(hostname)) == NULL) {
+        perror("Failed to get host by name");
+        return NULL;
+    }
+
+    if (inet_ntop(AF_INET, host_entry->h_addr_list[0], ip, 16) == NULL) {
+        perror("Failed to convert ip to string");
+        return NULL;
+    }
+
+    return ip;
+}
+
+
 int network_server_init(short port) {
     int sockfd;
     int opt = 1;  // option for setsockopt
@@ -166,8 +190,10 @@ int network_main_loop(int listening_socket, struct table_t *table) {
     // Save the table_t pointer
     table_ptr = table;
 
+    char *ip = get_ip();
+
     // Initialize the zookeeper, passing the ip:port and pointer to the table_t
-    zk_init(server_port, table_ptr, NULL);
+    zk_init(ip, server_port, table_ptr, NULL);
 
     printf("Zookeeper initialized\n");
 

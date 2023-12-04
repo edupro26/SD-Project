@@ -28,7 +28,7 @@ static char *root_path = "/chain";
 
 static char *watcher_ctx = "ZooKeeper Data Watcher";
 
-void zk_init(short port, struct table_t *table_pointer, char *address_port);
+void zk_init(char *ip, short port, struct table_t *table_pointer, char *address_port);
 
 void zk_children_handler(zhandle_t *zzh, int type, int state, const char *path, void *watcherCtx);
 
