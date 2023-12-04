@@ -301,7 +301,7 @@ void fill_table(char *ip_port, struct table_t *table_pointer)
     rtable_disconnect(rtable);
 }
 
-int next_node_put(struct entry_t *entry) {
+int next_node_put(char *key, struct data_t *data) {
     printf("On next_node_put\n");
 
     printf("Next node: %s\n", next_node);
@@ -314,8 +314,17 @@ int next_node_put(struct entry_t *entry) {
     if (next_node == NULL) {
         return 0;
     }
+
+    struct entry_t *entry = entry_create(key, data);
+
     // Print entry
     printf("Entry key: %s\n", entry->key);
+
+
+    if (entry->value == NULL) {
+        printf("Entry value is null\n");
+    }
+    
     printf("Entry value: %s\n", entry->value->data);
     
 
@@ -326,14 +335,18 @@ int next_node_put(struct entry_t *entry) {
     return -1;
 }
 
+/* ----------- ! RESOLVE ERROR MESSAGE IN SUCCESS CASE ! ------------ */
 int next_node_del(char *key) {
     if (next_node == NULL) {
         return 0;
     }
 
     if (rtable_del(rtable, key) == 0) {
+        printf("Deleted key from next node\n");
         return 1;
     }
+
+    printf("Error deleting key from next node\n");
 
     return -1;
 }

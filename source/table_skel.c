@@ -62,21 +62,20 @@ int invoke(MessageT *msg, struct table_t *table) {
                     msg->opcode = MESSAGE_T__OPCODE__OP_PUT + 1;
                     msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
                     msg->result = 0;
-                } else {
-                    msg->opcode = MESSAGE_T__OPCODE__OP_ERROR;
-                    msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
-                }
-                /* NEXT NODE PUT */
-                int result2 = next_node_put(msg->entry);
-                if (result2 != -1) {
-                    msg->opcode = MESSAGE_T__OPCODE__OP_PUT + 1;
-                    msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
-                    msg->result = 0;
+
+                    /* NEXT NODE PUT */
+                    int result2 = next_node_put(msg->entry->key, data_dup(data));
+                    if (result2 < 0) {
+                        msg->opcode = MESSAGE_T__OPCODE__OP_ERROR;
+                        msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
+                    }
                 } else {
                     msg->opcode = MESSAGE_T__OPCODE__OP_ERROR;
                     msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
                 }
                 leaveWrite(lock_data_ptr);
+                
+                
                 free(data);
             }
             break;
@@ -118,6 +117,13 @@ int invoke(MessageT *msg, struct table_t *table) {
                     msg->opcode = MESSAGE_T__OPCODE__OP_DEL+1;
                     msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
                     msg->result = 0;
+                    /* NEXT NODE DELETE */
+                    int result2 = next_node_del(msg->key);
+                    if (result2 < 0) {
+                        msg->opcode = MESSAGE_T__OPCODE__OP_ERROR;
+                        msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
+                    }
+
                 } else if (result == 1) {
                     msg->opcode = MESSAGE_T__OPCODE__OP_ERROR;
                     msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
@@ -126,20 +132,7 @@ int invoke(MessageT *msg, struct table_t *table) {
                     msg->opcode = MESSAGE_T__OPCODE__OP_ERROR;
                     msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
                 }
-                /* NEXT NODE DELETE */
-                int result2 = next_node_del(msg->key);
-                if (result2 == 0) {
-                    msg->opcode = MESSAGE_T__OPCODE__OP_DEL+1;
-                    msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
-                    msg->result = 0;
-                } else if (result2 == 1) {
-                    msg->opcode = MESSAGE_T__OPCODE__OP_ERROR;
-                    msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
-                    msg->result = 1;
-                } else {
-                    msg->opcode = MESSAGE_T__OPCODE__OP_ERROR;
-                    msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
-                }
+                
                 leaveWrite(lock_data_ptr);
             }
             break;
