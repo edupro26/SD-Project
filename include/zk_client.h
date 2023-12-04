@@ -10,6 +10,8 @@
 #include "zookeeper/zookeeper.h"
 
 struct rtable_pair_t {
+    char *head_name;
+    char *tail_name;
     struct rtable* read;
     struct rtable* write;
 };
@@ -36,7 +38,7 @@ char *zk_get_tail(char **node_list, int size);
 
 char **zk_get_data(char *node_name);
 
-int make_connections(char *address_head, char *address_tail, struct rtable_pair_t *rtable_pair);
+int make_connections(char *head_name, char *tail_name, struct rtable_pair_t *rtable_pair);
 
 
 
