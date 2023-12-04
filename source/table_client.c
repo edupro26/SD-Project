@@ -20,12 +20,6 @@ Tiago Oliveira - 54979
 #include "stats.h"
 #include "zookeeper/zookeeper.h"
 
-static zhandle_t *zh;
-
-struct rtable_pair_t {
-    struct rtable* read;
-    struct rtable* write;
-};
 
 int main(int argc, char **argv) {
     signal(SIGPIPE, SIG_IGN);
