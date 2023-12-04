@@ -8,8 +8,8 @@ Tiago Oliveira - 54979
 
 */
 
-
-
+#include "table.h"
+#include "entry.h"
 #include "zk_server.h"
 #include "client_stub-private.h"
 
@@ -20,14 +20,26 @@ char *this_node = NULL;
 char *next_node = NULL;
 char *next_node_data = NULL;
 // Pointer to rtable
-struct rtable_t *rtable = NULL;
+struct table_t *table_ptr2 = NULL;
 
-void zk_init(char *address_port, char* port) {
+struct rtable_t *rtable;
+
+void zk_init(short port, struct table_t *table_pointer, char *address_port) {
+    // Save rtble pointer
+    table_ptr2 = table_pointer;
+
+    // Convert port to string
+    char port_str[6];
+    sprintf(port_str, "%d", port);
+
     // Deactivate zookeeper logs
     zoo_set_debug_level(ZOO_LOG_LEVEL_ERROR);
     zoo_string* children_list =	NULL;
+
+    /* -------------- !!! CHANGE ZOOKEEPER ADRESS !!! --------------- */
+
     // Connect to Zookeeper
-    zh = zookeeper_init(address_port, zk_connection_watcher, 10000, 0, 0, 0);
+    zh = zookeeper_init("localhost:2181", zk_connection_watcher, 10000, 0, 0, 0);
 
     if (zh == NULL) {
         printf("Error connecting to zookeeper\n");
@@ -50,7 +62,7 @@ void zk_init(char *address_port, char* port) {
             // Put IP and port in data
             strcat(data, "127.0.0.1");
             strcat(data, ":");
-            strcat(data, port);
+            strcat(data, port_str);
 			if (ZOK != zoo_create(zh, node_path, data, strlen(data), & ZOO_OPEN_ACL_UNSAFE, ZOO_EPHEMERAL | ZOO_SEQUENCE, new_path, new_path_len)) {
 				fprintf(stderr, "Error creating znode from path %s!\n", node_path);
 			    exit(EXIT_FAILURE);
@@ -67,8 +79,9 @@ void zk_init(char *address_port, char* port) {
     next_node_data = malloc(ZDATALEN * sizeof(char));
 
     children_list =	(zoo_string *) malloc(sizeof(zoo_string));
-    while (1) {
         if (is_connected) {
+            printf("Connection to zookeeper established\n");
+
            if (ZNONODE == zoo_exists(zh, root_path, 0, NULL)) {
 				if (ZOK == zoo_create( zh, root_path, NULL, -1, & ZOO_OPEN_ACL_UNSAFE, 0, NULL, 0)) {
 					fprintf(stderr, "%s created!\n", root_path);
@@ -77,13 +90,44 @@ void zk_init(char *address_port, char* port) {
 					exit(EXIT_FAILURE);
 				} 
 			}
+
+            printf("Getting children\n");
+
             if (ZOK != zoo_wget_children(zh, root_path, &zk_children_handler, watcher_ctx, children_list)) {
 				fprintf(stderr, "Error setting watch at %s!\n", root_path);
 			}
-			pause(); 
-        }
 
-    }
+            printf("Got children\n");
+
+            // If already exists a node, fill the table with the data from the first node. Get the data from the next node
+            if (children_list->count > 1) {
+                printf("Already exists a node\n");
+
+                // Get data from first node
+                char *first_node_path = (char *) malloc(strlen(root_path) + strlen("/") + strlen(children_list->data[0]) + 1);
+                strcpy(first_node_path, root_path);
+                strcat(first_node_path, "/");
+                strcat(first_node_path, children_list->data[0]);
+                int zoo_data_len = ZDATALEN;
+                char *first_node_data = malloc(ZDATALEN * sizeof(char));
+                if (ZOK != zoo_get(zh, first_node_path, 0, first_node_data, &zoo_data_len, NULL)) {
+                    fprintf(stderr, "Error getting data from znode %s!\n", first_node_path);
+                }
+                free(first_node_path);
+
+                printf("Got data from first node\n");
+
+                // Fill the table with the data from the first node
+                fill_table(first_node_data, table_ptr2);
+
+                printf("Filled table with data from first node\n");
+            }
+
+        }
+    
+
+    printf("Ended proccess of zookeeper initialization\n");
+
     free(children_list);
 
 }
@@ -100,19 +144,38 @@ void zk_children_handler(zhandle_t *zh, int type, int state, const char *path, v
  				fprintf(stderr, "Error setting watch at %s!\n", root_path);
  			}
         
-            next_node = zk_closest_node(this_node, children_list->data, children_list->count);
-            if (next_node != NULL) {
-                printf("Next node: %s\n", next_node);
-                // Get data from next node
-                char *next_node_path = (char *) malloc(strlen(root_path) + strlen("/") + strlen(next_node) + 1);
-                strcpy(next_node_path, root_path);
-                strcat(next_node_path, "/");
-                strcat(next_node_path, next_node);
-              
-                if (ZOK != zoo_get(zh, next_node_path, 0, next_node_data, &zoo_data_len, NULL)) {
-                    fprintf(stderr, "Error getting data from znode %s!\n", next_node_path);
+            char* new_next_node = zk_closest_node(this_node, children_list->data, children_list->count);
+
+
+            if (new_next_node != NULL) {
+                printf("Next node: %s\n", new_next_node);
+
+                
+
+
+                // If next node changed, fill the table with the data from the next node
+
+                if (next_node == NULL || strcmp(next_node, new_next_node) != 0) {
+                    next_node = new_next_node;
+
+                    printf("Next node changed\n");
+
+                    // Get data from next node
+                    char *next_node_path = (char *) malloc(strlen(root_path) + strlen("/") + strlen(new_next_node) + 1);
+                    strcpy(next_node_path, root_path);
+                    strcat(next_node_path, "/");
+                    strcat(next_node_path, new_next_node);
+                
+                    if (ZOK != zoo_get(zh, next_node_path, 0, next_node_data, &zoo_data_len, NULL)) {
+                        fprintf(stderr, "Error getting data from znode %s!\n", next_node_path);
+                    }
+                    free(next_node_path);
+
+                    rtable = rtable_connect(next_node_data);
+                    
+
+                    printf("Connected to next node\n");
                 }
-                free(next_node_path);
             }
 
 		 } 
@@ -163,7 +226,41 @@ char *zk_closest_node(char *node_name, char **node_list, int node_list_size) {
     return closest_node;
 }
 
+void fill_table(char *ip_port, struct table_t *table_pointer) {
+    // Initiate a connection to the server
+    struct rtable_t *rtable = rtable_connect(ip_port);
 
+    if (rtable == NULL) {
+        printf("Error connecting to server, to retrieve table\n");
+        return;
+    }
+
+    // Get the table from the server
+    struct entry_t **entries = rtable_get_table(rtable);
+
+    if (entries == NULL) {
+        printf("Error retrieving table from server\n");
+        return;
+    }
+
+    // Fill the table
+    for (int i = 0; entries[i] != NULL; ++i) {
+        table_put(table_pointer, entries[i]->key, entries[i]->value);
+    }
+
+    // Free the entries array
+    for (int i = 0; entries[i] != NULL; ++i) {
+        entry_destroy(entries[i]);
+    }
+
+    free(entries);
+
+    // Close the connection to the server
+    rtable_disconnect(rtable);
+
+
+
+}
 
 
 

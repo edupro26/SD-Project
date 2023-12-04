@@ -50,11 +50,6 @@ int main(int argc, char **argv) {
         return -1;
     }
 
-    // Init zookeeper. Passing the second argument to the function
-    // will create a znode with the server address and port
-    // zk_init(argv[3]);
-    zk_init("127.0.0.1:2181", argv[1]);
-
     // Verify if first argument is a valid port
     unsigned short port = atoi(argv[1]);
     if (port <= 1023) {

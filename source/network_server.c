@@ -29,6 +29,7 @@ Tiago Oliveira - 54979
 #include "table_skel.h"
 #include "stats.h"
 #include "locks.h"
+#include "zk_server.h"
 
 // Create a variable to sore the table_t pointer
 struct table_t *table_ptr;
@@ -41,6 +42,9 @@ struct ClientSocketNode {
 };
 
 struct ClientSocketNode* client_socket_list = NULL;
+
+// Save port as global variable to pass to the zookeeper
+short server_port;
 
 
 int network_server_init(short port) {
@@ -65,6 +69,9 @@ int network_server_init(short port) {
         close(sockfd);
         return -1;
     }
+
+    server_port = port;
+
 
     // Fill in address struct for binding
     address.sin_family = AF_INET;
@@ -158,6 +165,11 @@ int network_main_loop(int listening_socket, struct table_t *table) {
     int client_socket;
     // Save the table_t pointer
     table_ptr = table;
+
+    // Initialize the zookeeper, passing the ip:port and pointer to the table_t
+    zk_init(server_port, table_ptr, NULL);
+
+    printf("Zookeeper initialized\n");
 
     while ((client_socket = accept(listening_socket, (struct sockaddr*)&client_addr, &client_len)) != -1) { // Keep the server running
 
