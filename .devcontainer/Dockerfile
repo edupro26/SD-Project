@@ -33,6 +33,8 @@ RUN wget --no-check-certificate https://archive.apache.org/dist/zookeeper/zookee
     mv apache-zookeeper-3.5.9-bin zk && \
     mv zk/conf/zoo_sample.cfg zk/conf/zoo.cfg
 
+ENV PATH="/app/zk/bin:${PATH}"
+
 # Copy the local directory contents into the container at /app
 COPY . /app
 
