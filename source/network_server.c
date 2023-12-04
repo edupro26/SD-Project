@@ -46,6 +46,8 @@ struct ClientSocketNode* client_socket_list = NULL;
 // Save port as global variable to pass to the zookeeper
 short server_port;
 
+char *zk_address;
+
 
 /* Function to retrieve the ip or hostmane of the machine  */
 char *get_ip() {
@@ -71,10 +73,13 @@ char *get_ip() {
 }
 
 
-int network_server_init(short port) {
+int network_server_init(short port, char *zk_ip_port) {
     int sockfd;
     int opt = 1;  // option for setsockopt
     struct sockaddr_in address;
+
+    // Save the zk_ip_port
+    zk_address = zk_ip_port;
 
     stats = init_statistics();
     locks_stats_ptr = init_lock();
@@ -193,7 +198,7 @@ int network_main_loop(int listening_socket, struct table_t *table) {
     char *ip = get_ip();
 
     // Initialize the zookeeper, passing the ip:port and pointer to the table_t
-    zk_init(ip, server_port, table_ptr, NULL);
+    zk_init(ip, server_port, table_ptr, zk_address);
 
     printf("Zookeeper initialized\n");
 

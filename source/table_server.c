@@ -15,13 +15,10 @@ Tiago Oliveira - 54979
 #include "network_server.h"
 #include "table_skel.h"
 #include "locks.h"
-#include "zk_server.h"
 
 
 int sockfd;
 struct table_t *table;
-
-
 
 
 void stop_server(int signum) {
@@ -45,8 +42,8 @@ int main(int argc, char **argv) {
     signal(SIGINT, stop_server);
     signal(SIGPIPE, SIG_IGN);
     // Check if 2 arguments were passed
-    if (argc != 3) {
-        printf("Usage: ./table_server <port> <n_lists>\n");
+    if (argc != 4) {
+        printf("Usage: ./table_server <port> <n_lists> <zk_ip:port>\n");
         return -1;
     }
 
@@ -66,8 +63,10 @@ int main(int argc, char **argv) {
         return -1;
     }
 
+    char *zk_ip_port = argv[3];
+
     // Start server
-    sockfd = network_server_init(port);
+    sockfd = network_server_init(port, zk_ip_port);
 
     if (sockfd < 0) {
         printf("Error starting server\n");

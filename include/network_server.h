@@ -8,7 +8,8 @@
  * num determinado porto.
  * Retorna o descritor do socket ou -1 em caso de erro.
  */
-int network_server_init(short port);
+ /* ALTERAÇÃO: Adiconado parametro para passar o ip e porta do Zookeeper */
+int network_server_init(short port, char* zk_ip_port);
 
 /* A função network_main_loop() deve:
  * - Aceitar uma conexão de um cliente;

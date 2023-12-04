@@ -39,7 +39,7 @@ void zk_init(char *ip, short port, struct table_t *table_pointer, char *address_
     /* -------------- !!! CHANGE ZOOKEEPER ADRESS !!! --------------- */
 
     // Connect to Zookeeper
-    zh = zookeeper_init("localhost:2181", zk_connection_watcher, 10000, 0, 0, 0);
+    zh = zookeeper_init(address_port, zk_connection_watcher, 10000, 0, 0, 0);
 
     if (zh == NULL) {
         printf("Error connecting to zookeeper\n");
