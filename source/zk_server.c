@@ -197,6 +197,11 @@ void zk_children_handler(zhandle_t *zh, int type, int state, const char *path, v
 
                     printf("Connected to next node\n");
                 }
+            } else {
+                if (next_node != NULL) {
+                    next_node = NULL;
+                    rtable_disconnect(rtable);
+                }
             }
         }
     }
@@ -294,4 +299,41 @@ void fill_table(char *ip_port, struct table_t *table_pointer)
 
     // Close the connection to the server
     rtable_disconnect(rtable);
+}
+
+int next_node_put(struct entry_t *entry) {
+    printf("On next_node_put\n");
+
+    printf("Next node: %s\n", next_node);
+
+    // Check connection to next node
+    printf("Checking connection to next node\n");
+    if (rtable == NULL) {
+        printf("Not connected to next node\n");
+    }
+    if (next_node == NULL) {
+        return 0;
+    }
+    // Print entry
+    printf("Entry key: %s\n", entry->key);
+    printf("Entry value: %s\n", entry->value->data);
+    
+
+    if (rtable_put(rtable, entry) == 0) {
+        return 1;
+    }
+
+    return -1;
+}
+
+int next_node_del(char *key) {
+    if (next_node == NULL) {
+        return 0;
+    }
+
+    if (rtable_del(rtable, key) == 0) {
+        return 1;
+    }
+
+    return -1;
 }

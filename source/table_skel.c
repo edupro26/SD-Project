@@ -14,6 +14,7 @@ Tiago Oliveira - 54979
 #include "stats.h"
 #include "table_skel.h"
 #include "locks.h"
+#include "zk_server.h"
 
 struct locks_t *lock_data_ptr;
 
@@ -65,6 +66,16 @@ int invoke(MessageT *msg, struct table_t *table) {
                     msg->opcode = MESSAGE_T__OPCODE__OP_ERROR;
                     msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
                 }
+                /* NEXT NODE PUT */
+                int result2 = next_node_put(msg->entry);
+                if (result2 != -1) {
+                    msg->opcode = MESSAGE_T__OPCODE__OP_PUT + 1;
+                    msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
+                    msg->result = 0;
+                } else {
+                    msg->opcode = MESSAGE_T__OPCODE__OP_ERROR;
+                    msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
+                }
                 leaveWrite(lock_data_ptr);
                 free(data);
             }
@@ -108,6 +119,20 @@ int invoke(MessageT *msg, struct table_t *table) {
                     msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
                     msg->result = 0;
                 } else if (result == 1) {
+                    msg->opcode = MESSAGE_T__OPCODE__OP_ERROR;
+                    msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
+                    msg->result = 1;
+                } else {
+                    msg->opcode = MESSAGE_T__OPCODE__OP_ERROR;
+                    msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
+                }
+                /* NEXT NODE DELETE */
+                int result2 = next_node_del(msg->key);
+                if (result2 == 0) {
+                    msg->opcode = MESSAGE_T__OPCODE__OP_DEL+1;
+                    msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
+                    msg->result = 0;
+                } else if (result2 == 1) {
                     msg->opcode = MESSAGE_T__OPCODE__OP_ERROR;
                     msg->c_type = MESSAGE_T__C_TYPE__CT_NONE;
                     msg->result = 1;
