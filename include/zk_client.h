@@ -12,8 +12,8 @@
 struct rtable_pair_t {
     char *head_name;
     char *tail_name;
-    struct rtable* read;
-    struct rtable* write;
+    struct rtable_t* read;
+    struct rtable_t* write;
 };
 
 #define ZDATALEN 1024 * 1024
