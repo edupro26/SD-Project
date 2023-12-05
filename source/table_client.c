@@ -18,20 +18,21 @@ Tiago Oliveira - 54979
 #include "client_stub-private.h"
 #include "entry.h"
 #include "stats.h"
-#include "zookeeper/zookeeper.h"
+#include "zk_client.h"
 
 
 int main(int argc, char **argv) {
     signal(SIGPIPE, SIG_IGN);
 
     if (argc != 2) {
-        printf("Usage: ./table_client <server>:<port>\n");
+        printf("Usage: ./table_client <zkIP>:<port>\n");
         return -1;
     }
 
+    struct rtable_pair_t *rtable = zk_init(argv[1]);
 
-    struct rtable_t *rtable = rtable_connect(argv[1]);
     if (rtable == NULL) {
+        printf("Error connecting to servers\n");
         return -1;
     }
 
@@ -69,7 +70,7 @@ int main(int argc, char **argv) {
             }
             struct data_t *data = data_create(strlen(command_data), command_data);
             struct entry_t *entry = entry_create(command_key, data);
-            int put = rtable_put(rtable, entry);
+            int put = rtable_put(rtable->write, entry);
             if (put < 0) {
                 printf("Error in rtable_put\n");
                 free(command);
@@ -84,7 +85,7 @@ int main(int argc, char **argv) {
                 free(command);
                 continue;
             }
-            struct data_t *data = rtable_get(rtable, command_key);
+            struct data_t *data = rtable_get(rtable->read, command_key);
             if (data == NULL) {
                 printf("Error in rtable_get or key not found!\n");
                 free(command);
@@ -106,7 +107,7 @@ int main(int argc, char **argv) {
                 free(command);
                 continue;
             }
-            int del = rtable_del(rtable, command_key);
+            int del = rtable_del(rtable->write, command_key);
             if (del < 0) {
                 printf("Error in rtable_del\n");
                 free(command);
@@ -117,7 +118,7 @@ int main(int argc, char **argv) {
         } 
         // size
         else if (strcmp(command_name, "size") == 0) {
-            int size = rtable_size(rtable);
+            int size = rtable_size(rtable->read);
             if (size < 0) {
                 printf("Error in rtable_size\n");
                 free(command);
@@ -128,7 +129,7 @@ int main(int argc, char **argv) {
         } 
         // getkeys
         else if (strcmp(command_name, "getkeys") == 0) {
-            char **keys = rtable_get_keys(rtable);
+            char **keys = rtable_get_keys(rtable->read);
             if (keys == NULL) {
                 printf("Error in rtable_get_keys\n");
             }
@@ -144,7 +145,7 @@ int main(int argc, char **argv) {
         } 
         // gettable
         else if (strcmp(command_name, "gettable") == 0) {
-            struct entry_t **entries = rtable_get_table(rtable);
+            struct entry_t **entries = rtable_get_table(rtable->read);
             if (entries == NULL) {
                 printf("Error executing rtable_get_table\n");
             }
@@ -165,7 +166,7 @@ int main(int argc, char **argv) {
         } 
         // stats
         else if (strcmp(command_name, "stats") == 0) {
-            struct statistics_t *stats = rtable_stats(rtable);
+            struct statistics_t *stats = rtable_stats(rtable->read);
             if (stats == NULL) {
                 printf("Error executing rtable_stats\n");
                 // Free memory
@@ -183,8 +184,10 @@ int main(int argc, char **argv) {
         }
         // quit
         else if (strcmp(command_name, "quit") == 0) {
-            int cls = rtable_disconnect(rtable);
-            if(cls < 0){
+            int cls = rtable_disconnect(rtable->read);
+            int cls2 = rtable_disconnect(rtable->write);
+
+            if(cls < 0 || cls2 < 0){
                 perror("Error closing connection to server\n");
                 free(command);
                 break;
