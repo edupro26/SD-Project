@@ -6,6 +6,10 @@ O Client tem que passar a conectar-se ao zk para saber a que server se tem que c
 O Server tem que conectar-se ao zookeeper para dar conhecimento ao zookeeper da sua existencia
 
 
+- Atualizar o stats
+- O que fazer em caso de falha a meio da chain
+
+
 # Messages
 ## PUT
 ### Success
