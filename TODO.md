@@ -8,6 +8,8 @@ O Server tem que conectar-se ao zookeeper para dar conhecimento ao zookeeper da 
 
 - Atualizar o stats
 - O que fazer em caso de falha a meio da chain
+- Confirmar se a porta continua a ser escolhida ao iniciar o server
+- Data watcher necessário???
 
 
 # Messages
