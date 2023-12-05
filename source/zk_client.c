@@ -10,7 +10,7 @@ Tiago Oliveira - 54979
 
 #include "zk_client.h"
 
-struct rtable_pair_t *connections = NULL;
+struct rtable_pair_t *connections;
 
 typedef struct String_vector zoo_string;
 struct String_vector children;
@@ -18,6 +18,12 @@ struct String_vector children;
 struct rtable_pair_t *zk_init(char *address_port) {
     zoo_set_debug_level(ZOO_LOG_LEVEL_ERROR);
 
+    // Init connections
+    connections = (struct rtable_pair_t *)malloc(sizeof(struct rtable_pair_t));
+    connections->head_name = NULL;
+    connections->tail_name = NULL;
+    connections->read = NULL;
+    connections->write = NULL;
 
     zh = zookeeper_init(address_port, zk_connection_watcher, 10000, 0, 0, 0);
 
@@ -29,6 +35,8 @@ struct rtable_pair_t *zk_init(char *address_port) {
     sleep(3); // Wait for connection to be established
 
     if (is_connected) {
+        printf("Connected to zookeeper!\n");
+
         if(ZNONODE == zoo_exists(zh, root_path, 0, NULL)) {
            
             fprintf(stderr, "No servers available!\n");
@@ -43,15 +51,28 @@ struct rtable_pair_t *zk_init(char *address_port) {
             return NULL;
         }
 
+        printf("Got available servers!\n");
+
+        if (children_list->count == 0) {
+            fprintf(stderr, "No servers available!\n");
+            return NULL;
+        }
+
         char *tail = zk_get_tail(children_list->data, children_list->count);
         char *head = zk_get_head(children_list->data, children_list->count);
 
+        printf("Got head and tail!\n");
+
         int connected = make_connections(head, tail, connections);
+
+        printf("Made connections!\n");
 
         if (connected == -1) {
             fprintf(stderr, "Error connecting to servers!\n");
             return NULL;
         }
+
+        return connections;
 
 
 
@@ -88,25 +109,16 @@ void zk_children_handler(zhandle_t *zh, int type, int state, const char *path, v
             char *tail = zk_get_tail(children_list->data, children_list->count);
             char *head = zk_get_head(children_list->data, children_list->count);
 
-            char *address_tail = zk_get_data(tail);
-            char *address_head = zk_get_data(head);
+            int connected = make_connections(head, tail, connections);
 
-            if (connections == NULL) {
-                connections = (struct rtable_pair_t *)malloc(sizeof(struct rtable_pair_t));
-                make_connections(address_head, address_tail, connections);
-            } else {
-                /*
-                if (strcmp(address_head, connections->read->address_port) != 0 || strcmp(address_tail, connections->write->address_port) != 0) {
-                    connections->read = rtable_connect(address_head);
-                    connections->write = rtable_connect(address_tail);
-                }
-                */
+            if (connected == -1) {
+                fprintf(stderr, "Error connecting to servers!\n");
+                return;
             }
 
-            free(address_head);
-            free(address_tail);
-            free(tail);
-            free(head);
+    
+            //free(tail);
+            //free(head);
 
     }
     }
@@ -161,11 +173,43 @@ char **zk_get_data(char *node_name) {
 
 
 int make_connections(char *head_name, char *tail_name, struct rtable_pair_t *rtable_pair) {
+    printf("Making connections\n");
+
     if (rtable_pair == NULL) {
+        printf("rtable_pair is NULL\n");
         return -1;
     }
 
-    if (strcmp(head_name, tail_name) == 0) {
+    // If current head is null, connect to head
+    if (rtable_pair->head_name == NULL || strcmp(rtable_pair->head_name, head_name) != 0) {
+        printf("Head is null\n");
+        printf("Head name: %s\n", head_name);
+
+        char *address = zk_get_data(head_name);
+
+        printf("Got data from head\n");
+        printf("Address: %s\n", address);
+
+        rtable_pair->write = rtable_connect(address);
+        rtable_pair->head_name = head_name;
+    } 
+
+    if (rtable_pair->tail_name == NULL || strcmp(rtable_pair->tail_name, tail_name) != 0) {
+        printf("Tail is null\n");
+        printf("Tail name: %s\n", tail_name);
+
+        char *address = zk_get_data(tail_name);
+
+        printf("Got data from tail\n");
+        printf("Address: %s\n", address);
+        rtable_pair->read = rtable_connect(address);
+        rtable_pair->tail_name = tail_name;
+    }
+
+    return 0;
+
+    /*
+    if (strcmp(head_name, tail_name) ) {
         // Avoid getting the data of the node if head or tail didn't change
         if (strcmp(head_name, rtable_pair->head_name) == 0 && strcmp(tail_name, rtable_pair->tail_name) == 0) {
             return 0;
@@ -192,10 +236,17 @@ int make_connections(char *head_name, char *tail_name, struct rtable_pair_t *rta
         rtable_pair->write = rtable_connect(address);
         return 0;
     } else {
+        printf("None of the nodes are equal\n");
+
         char *address_head = zk_get_data(head_name);
         char *address_tail = zk_get_data(tail_name);
+
+        printf("Got data from head and tail\n");
+
         rtable_pair->write = rtable_connect(address_head);
         rtable_pair->read = rtable_connect(address_tail);
+
+        printf("Connected to head and tail\n");
         return 0;
-    }
+    }*/
 }
