@@ -15,6 +15,7 @@ RUN apt-get update && \
     protobuf-c-compiler \
     default-jre \
     wget \
+    net-tools \
     libprotobuf-c-dev && \
     # Clean up the package lists to reduce image size
     rm -rf /var/lib/apt/lists/*
