@@ -72,7 +72,7 @@ struct rtable_pair_t *zk_init(char *address_port) {
         // Make connections for read and write
         int connected = make_connections(head, tail, connections);
 
-        printf("Made connections!\n");
+        printf("Made connections, on init!\n");
 
         if (connected == -1) {
             fprintf(stderr, "Error connecting to servers!\n");
@@ -115,6 +115,8 @@ void zk_children_handler(zhandle_t *zh, int type, int state, const char *path, v
 
             // Make connections for read and write
             int connected = make_connections(head, tail, connections);
+
+            printf("Made connections, through watcher!\n");
 
             if (connected == -1) {
                 fprintf(stderr, "Error connecting to servers!\n");
@@ -201,9 +203,21 @@ int make_connections(char *head_name, char *tail_name, struct rtable_pair_t *rta
         printf("Got data from head\n");
         printf("Address: %s\n", address);
 
+        // Disconnect from current head
+        if (rtable_pair->write != NULL) {
+            rtable_disconnect(rtable_pair->write);
+        }
+
         // Save the new connection in the rtable_pair and update the head name
         rtable_pair->write = rtable_connect(address);
         rtable_pair->head_name = head_name;
+
+        printf("Ended connecting to head\n");
+
+        if (rtable_pair->write == NULL) {
+            printf("Error connecting to head\n");
+            return -1;
+        }
     } 
 
     // If current tail is null or different from the new tail, connect to the new tail
@@ -216,9 +230,21 @@ int make_connections(char *head_name, char *tail_name, struct rtable_pair_t *rta
         printf("Got data from tail\n");
         printf("Address: %s\n", address);
 
+        // Disconnect from current tail
+        if (rtable_pair->read != NULL) {
+            rtable_disconnect(rtable_pair->read);
+        }
+
         // Save the new connection in the rtable_pair and update the tail name
         rtable_pair->read = rtable_connect(address);
         rtable_pair->tail_name = tail_name;
+
+        printf("Ended connecting to tail\n");
+
+        if (rtable_pair->read == NULL) {
+            printf("Error connecting to tail\n");
+            return -1;
+        }
     }
 
     return 0;
