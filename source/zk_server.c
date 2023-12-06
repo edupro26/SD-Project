@@ -126,7 +126,8 @@ void zk_init(char *ip, short port, struct table_t *table_pointer, char *address_
             char *first_node_path = (char *)malloc(strlen(root_path) + strlen("/") + strlen(children_list->data[0]) + 1);
             strcpy(first_node_path, root_path);
             strcat(first_node_path, "/");
-            strcat(first_node_path, children_list->data[0]);
+            char* second_highest_node = get_second_highest_id(children_list->data, children_list->count);
+            strcat(first_node_path, second_highest_node);
             int zoo_data_len = ZDATALEN;
             char *first_node_data = malloc(ZDATALEN * sizeof(char));
 
@@ -349,4 +350,26 @@ int next_node_del(char *key) {
     printf("Error deleting key from next node\n");
 
     return -1;
+}
+
+char* get_second_highest_id(char** node_list, int node_list_size) {
+    int highest_id = -1;
+    int second_highest_id = -1;
+    char* second_highest_node = NULL;
+
+    for (int i = 0; i < node_list_size; ++i)
+    {
+        int current_id = get_node_id(node_list[i]);
+
+        if (current_id > highest_id) {
+            second_highest_id = highest_id;
+            highest_id = current_id;
+            second_highest_node = node_list[i];
+        } else if (current_id > second_highest_id) {
+            second_highest_id = current_id;
+            second_highest_node = node_list[i];
+        }
+    }
+
+    return second_highest_node;
 }

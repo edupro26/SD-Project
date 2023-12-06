@@ -49,4 +49,6 @@ int next_node_put(char *key, struct data_t *data);
 // Make del operation in the next node. If there isnt a next node returns 0, if there is and the operation is successful returns 1, otherwise returns -1
 int next_node_del(char *key);
 
+char* get_second_highest_id(char** node_list, int node_list_size);
+
 #endif
