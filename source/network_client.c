@@ -54,12 +54,16 @@ int network_connect(struct rtable_t *rtable) {
         return -1;
     }
 
+    printf("Connecting to %s:%d\n", rtable->server_address, rtable->server_port);
+
     // Connect to server
     if (connect(sockfd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
         perror("connect");
         close(sockfd);
         return -1;
     }
+
+    printf("Connected!\n");
 
     rtable->sockfd = sockfd;
 
@@ -86,6 +90,8 @@ MessageT *network_send_receive(struct rtable_t *rtable, MessageT *msg) {
     }
     message_t__pack(msg, buf);
 
+    printf("Sending message size\n");
+
     // Send message size (2 bytes)
     int16_t size = htons(len);
     if (write_all(sockfd, &size, sizeof(short)) != sizeof(short)) {
@@ -93,6 +99,8 @@ MessageT *network_send_receive(struct rtable_t *rtable, MessageT *msg) {
         free(buf);
         return NULL;
     }
+
+    printf("Sending message\n");
 
     // Send serialized message
     nbytes = write_all(sockfd, buf, len);
@@ -102,11 +110,15 @@ MessageT *network_send_receive(struct rtable_t *rtable, MessageT *msg) {
         return NULL;
     }
 
+    printf("Message sent\n");
+
     // Receive response size (2 bytes)
     if (read_all(sockfd, &size, sizeof(short)) != sizeof(short)) {
         printf("Error receiving response size\n");
         return NULL;
     }
+
+    printf("Received response size\n");
 
     len = ntohs(size);
 
@@ -121,6 +133,8 @@ MessageT *network_send_receive(struct rtable_t *rtable, MessageT *msg) {
         free(buf);
         return NULL;
     }
+
+    printf("Received response\n");
 
     // Deserialize response
     MessageT *response = message_t__unpack(NULL, len, buf);

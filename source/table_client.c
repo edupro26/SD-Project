@@ -31,6 +31,8 @@ int main(int argc, char **argv) {
 
     struct rtable_pair_t *rtable = zk_init(argv[1]);
 
+    printf("Got rtables from zookeeper!\n");
+
     if (rtable == NULL) {
         printf("Error connecting to servers\n");
         return -1;
@@ -145,6 +147,7 @@ int main(int argc, char **argv) {
         } 
         // gettable
         else if (strcmp(command_name, "gettable") == 0) {
+            printf("Received gettable command\n");
             struct entry_t **entries = rtable_get_table(rtable->read);
             if (entries == NULL) {
                 printf("Error executing rtable_get_table\n");
