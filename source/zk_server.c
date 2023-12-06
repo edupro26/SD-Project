@@ -106,21 +106,16 @@ void zk_init(char *ip, short port, struct table_t *table_pointer, char *address_
     children_list = (zoo_string *)malloc(sizeof(zoo_string));
     if (is_connected)
     {
-        printf("Connection to zookeeper established\n");
 
-        printf("Getting children\n");
 
         if (ZOK != zoo_wget_children(zh, root_path, &zk_children_handler, watcher_ctx, children_list))
         {
             fprintf(stderr, "Error setting watch at %s!\n", root_path);
         }
 
-        printf("Got children\n");
-
         // If there is already a node when this server starts, this server should get the table data from the head node
         if (children_list->count > 1)
         {
-            printf("Already exists a node\n");
 
             // Get data from first node
             char *first_node_path = (char *)malloc(strlen(root_path) + strlen("/") + strlen(children_list->data[0]) + 1);
@@ -138,24 +133,18 @@ void zk_init(char *ip, short port, struct table_t *table_pointer, char *address_
             }
             free(first_node_path);
 
-            printf("Got data from first node\n");
 
             // Fill the table with the data from the first node
             fill_table(first_node_data, table_ptr2);
 
-            printf("Filled table with data from first node\n");
         }
     }
-
-    printf("Ended proccess of zookeeper initialization\n");
 
     free(children_list);
 }
 
 void zk_children_handler(zhandle_t *zh, int type, int state, const char *path, void *watcherCtx)
 {
-    printf("Zookeeper watch triggered!\n");
-    printf("This node path: %s\n", this_node);
     zoo_string *children_list = (zoo_string *)malloc(sizeof(zoo_string));
     int zoo_data_len = ZDATALEN;
     if (state == ZOO_CONNECTED_STATE)
@@ -172,7 +161,6 @@ void zk_children_handler(zhandle_t *zh, int type, int state, const char *path, v
 
             if (new_next_node != NULL)
             {
-                printf("Next node: %s\n", new_next_node);
 
                 // If next node changed, fill the table with the data from the next node
 
@@ -180,7 +168,6 @@ void zk_children_handler(zhandle_t *zh, int type, int state, const char *path, v
                 {
                     next_node = new_next_node;
 
-                    printf("Next node changed\n");
 
                     // Get data from next node
                     char *next_node_path = (char *)malloc(strlen(root_path) + strlen("/") + strlen(new_next_node) + 1);
@@ -202,7 +189,6 @@ void zk_children_handler(zhandle_t *zh, int type, int state, const char *path, v
 
                     rtable = rtable_connect(next_node_data);
 
-                    printf("Connected to next node\n");
                 }
             } else {
                 if (next_node != NULL) {
@@ -309,30 +295,13 @@ void fill_table(char *ip_port, struct table_t *table_pointer)
 }
 
 int next_node_put(char *key, struct data_t *data) {
-    printf("On next_node_put\n");
 
-    printf("Next node: %s\n", next_node);
 
-    // Check connection to next node
-    printf("Checking connection to next node\n");
-    if (rtable == NULL) {
-        printf("Not connected to next node\n");
-    }
     if (next_node == NULL) {
         return 0;
     }
 
     struct entry_t *entry = entry_create(key, data);
-
-    // Print entry
-    printf("Entry key: %s\n", entry->key);
-
-
-    if (entry->value == NULL) {
-        printf("Entry value is null\n");
-    }
-    
-    printf("Entry value: %s\n", entry->value->data);
     
 
     if (rtable_put(rtable, entry) == 0) {
@@ -349,11 +318,8 @@ int next_node_del(char *key) {
     }
 
     if (rtable_del(rtable, key) == 0) {
-        printf("Deleted key from next node\n");
         return 1;
     }
-
-    printf("Error deleting key from next node\n");
 
     return -1;
 }
@@ -371,7 +337,6 @@ char* get_second_highest_id(char** node_list, int node_list_size, char* target_n
             highest_node = node_list[i];
         }
     }
-
-    printf("Second highest node: %s\n", highest_node);
+    
     return highest_node;
 }

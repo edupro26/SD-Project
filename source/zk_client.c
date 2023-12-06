@@ -55,7 +55,6 @@ struct rtable_pair_t *zk_init(char *address_port) {
             return NULL;
         }
 
-        printf("Got available servers!\n");
 
         // If no children, return NULL
         if (children_list->count == 0) {
@@ -67,12 +66,9 @@ struct rtable_pair_t *zk_init(char *address_port) {
         char *tail = zk_get_tail(children_list->data, children_list->count);
         char *head = zk_get_head(children_list->data, children_list->count);
 
-        printf("Got head and tail!\n");
-
         // Make connections for read and write
         int connected = make_connections(head, tail, connections);
 
-        printf("Made connections, on init!\n");
 
         if (connected == -1) {
             fprintf(stderr, "Error connecting to servers!\n");
@@ -115,8 +111,6 @@ void zk_children_handler(zhandle_t *zh, int type, int state, const char *path, v
 
             // Make connections for read and write
             int connected = make_connections(head, tail, connections);
-
-            printf("Made connections, through watcher!\n");
 
             if (connected == -1) {
                 fprintf(stderr, "Error connecting to servers!\n");
@@ -185,8 +179,6 @@ char **zk_get_data(char *node_name) {
 
 
 int make_connections(char *head_name, char *tail_name, struct rtable_pair_t *rtable_pair) {
-    printf("Making connections\n");
-
     // Check if rtable_pair is null
     if (rtable_pair == NULL) {
         printf("rtable_pair is NULL\n");
@@ -195,13 +187,8 @@ int make_connections(char *head_name, char *tail_name, struct rtable_pair_t *rta
 
     // If current head is null or different from the new head, connect to the new head
     if (rtable_pair->head_name == NULL || strcmp(rtable_pair->head_name, head_name) != 0) {
-        printf("Head is null\n");
-        printf("Head name: %s\n", head_name);
 
         char *address = zk_get_data(head_name);
-
-        printf("Got data from head\n");
-        printf("Address: %s\n", address);
 
         // Disconnect from current head
         if (rtable_pair->write != NULL) {
@@ -212,8 +199,6 @@ int make_connections(char *head_name, char *tail_name, struct rtable_pair_t *rta
         rtable_pair->write = rtable_connect(address);
         rtable_pair->head_name = head_name;
 
-        printf("Ended connecting to head\n");
-
         if (rtable_pair->write == NULL) {
             printf("Error connecting to head\n");
             return -1;
@@ -222,13 +207,8 @@ int make_connections(char *head_name, char *tail_name, struct rtable_pair_t *rta
 
     // If current tail is null or different from the new tail, connect to the new tail
     if (rtable_pair->tail_name == NULL || strcmp(rtable_pair->tail_name, tail_name) != 0) {
-        printf("Tail is null\n");
-        printf("Tail name: %s\n", tail_name);
 
         char *address = zk_get_data(tail_name);
-
-        printf("Got data from tail\n");
-        printf("Address: %s\n", address);
 
         // Disconnect from current tail
         if (rtable_pair->read != NULL) {
@@ -238,8 +218,6 @@ int make_connections(char *head_name, char *tail_name, struct rtable_pair_t *rta
         // Save the new connection in the rtable_pair and update the tail name
         rtable_pair->read = rtable_connect(address);
         rtable_pair->tail_name = tail_name;
-
-        printf("Ended connecting to tail\n");
 
         if (rtable_pair->read == NULL) {
             printf("Error connecting to tail\n");
