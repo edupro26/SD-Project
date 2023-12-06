@@ -27,7 +27,7 @@ struct rtable_pair_t *zk_init(char *address_port) {
 
     /* INITIALIZE ZOOKEEPER CONNECTION */
 
-    zh = zookeeper_init(address_port, zk_connection_watcher, 10000, 0, 0, 0);
+    zh = zookeeper_init(address_port, zk_connection_watcher, 20000, 0, 0, 0);
 
     if (zh == NULL) {
         printf("Error connecting to zookeeper\n");
