@@ -322,8 +322,6 @@ int network_server_close(int socket) {
     struct ClientSocketNode* current = client_socket_list;
 
     while (current != NULL) {
-
-        printf("Inside loop\n");
         
 
         struct ClientSocketNode* temp = current;
