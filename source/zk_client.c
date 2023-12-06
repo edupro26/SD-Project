@@ -34,7 +34,7 @@ struct rtable_pair_t *zk_init(char *address_port) {
         exit(-1);
     }
 
-    sleep(3); // Wait for connection to be established
+    is_connected = 1;
 
     if (is_connected) {
         printf("Connected to zookeeper!\n");

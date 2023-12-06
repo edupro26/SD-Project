@@ -46,7 +46,7 @@ void zk_init(char *ip, short port, struct table_t *table_pointer, char *address_
         exit(-1);
     }
 
-    sleep(3); // Wait for connection to be established
+    is_connected = 1;
 
     if (is_connected)
     {
