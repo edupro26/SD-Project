@@ -38,7 +38,7 @@ void zk_init(char *ip, short port, struct table_t *table_pointer, char *address_
     zoo_string *children_list = NULL;
 
     // Connect to Zookeeper
-    zh = zookeeper_init(address_port, zk_connection_watcher, 10000, 0, 0, 0);
+    zh = zookeeper_init(address_port, zk_connection_watcher, 20000, 0, 0, 0);
 
     if (zh == NULL)
     {
@@ -371,5 +371,6 @@ char* get_second_highest_id(char** node_list, int node_list_size) {
         }
     }
 
+    printf("Second highest node: %s\n", second_highest_node);
     return second_highest_node;
 }
