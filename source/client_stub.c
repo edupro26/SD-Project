@@ -64,8 +64,6 @@ struct rtable_t *rtable_connect(char *address_port) {
     }
     rtable->server_port = atoi(port);
 
-    printf("Starting connection to server %s:%d\n on function rtable_connect\n", rtable->server_address, rtable->server_port);
-
     // Calls network_connect to connect to the server
     if (network_connect(rtable) < 0) {
         perror("Error connecting to server");
@@ -73,8 +71,6 @@ struct rtable_t *rtable_connect(char *address_port) {
         free(rtable);
         return NULL;
     }
-
-    printf("Ended connection to server %s:%d\n on function rtable_connect\n", rtable->server_address, rtable->server_port);
 
     // If socket is invalid, free memory and return NULL
     if (rtable->sockfd < 0) {
@@ -332,12 +328,10 @@ struct entry_t **rtable_get_table(struct rtable_t *rtable) {
     msg.opcode = MESSAGE_T__OPCODE__OP_GETTABLE;
     msg.c_type = MESSAGE_T__C_TYPE__CT_NONE;
 
-    printf("Sending gettable request\n");
 
     // Sends the request
     MessageT *response = network_send_receive(rtable, &msg);
 
-    printf("Received gettable response\n");
 
     // Check response
     if (response == NULL) {
