@@ -194,6 +194,12 @@ void zk_children_handler(zhandle_t *zh, int type, int state, const char *path, v
                     }
                     free(next_node_path);
 
+                    // Disconnect from previous node
+                    if (rtable != NULL)
+                    {
+                        rtable_disconnect(rtable);
+                    }
+
                     rtable = rtable_connect(next_node_data);
 
                     printf("Connected to next node\n");
