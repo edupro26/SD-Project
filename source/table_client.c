@@ -147,7 +147,6 @@ int main(int argc, char **argv) {
         } 
         // gettable
         else if (strcmp(command_name, "gettable") == 0) {
-            printf("Received gettable command\n");
             struct entry_t **entries = rtable_get_table(rtable->read);
             if (entries == NULL) {
                 printf("Error executing rtable_get_table\n");
