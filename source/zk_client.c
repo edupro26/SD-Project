@@ -10,6 +10,12 @@ Tiago Oliveira - 54979
 
 #include "zk_client.h"
 
+static zhandle_t *zh;
+
+static int is_connected;
+
+static char *root_path = "/chain";
+
 struct rtable_pair_t *connections;
 
 typedef struct String_vector zoo_string;
@@ -49,7 +55,6 @@ struct rtable_pair_t *zk_init(char *address_port) {
 
         // Get list of children nodes
         zoo_string *children_list = (zoo_string *)malloc(sizeof(zoo_string));
-        int zoo_data_len = ZDATALEN;
         if (ZOK != zoo_wget_children(zh, root_path, zk_children_handler, NULL, children_list)) {
             fprintf(stderr, "Error getting children of znode %s!\n", root_path);
             return NULL;
@@ -78,29 +83,36 @@ struct rtable_pair_t *zk_init(char *address_port) {
         return connections;
 
     }
+
+    return NULL;
 }
 
 void zk_connection_watcher(zhandle_t *zzh, int type, int state, const char *path, void *watcherCtx) {
-    if (type == ZOO_SESSION_EVENT) {
-        if (state == ZOO_CONNECTED_STATE) {
+    (void)zzh;     // Suppress unused parameter warning
+    (void)path;    // Suppress unused parameter warning
+    (void)watcherCtx; // Suppress unused parameter warning
+    
+    if (type == ZOO_SESSION_EVENT)
+    {
+        if (state == ZOO_CONNECTED_STATE)
+        {
             is_connected = 1;
-        } else {
-            fprintf(stderr, "Session expired. Shutting down...\n");
-            zookeeper_close(zh);
-            exit(-1);
+        }
+        else
+        {
+            is_connected = 0;
         }
     }
 }
 
 void zk_children_handler(zhandle_t *zh, int type, int state, const char *path, void *watcherCtx) {
     zoo_string *children_list = (zoo_string *)malloc(sizeof(zoo_string));
-    int zoo_data_len = ZDATALEN;
 
     if (type == ZOO_CHILD_EVENT) {
         if (state == ZOO_CONNECTED_STATE) {
         
             // Get list of children nodes and set watcher
-            if (ZOK != zoo_wget_children(zh, root_path, zk_children_handler, watcherCtx, children_list)) {
+            if (ZOK != zoo_wget_children(zh, path, zk_children_handler, watcherCtx, children_list)) {
                 fprintf(stderr, "Error getting children of znode %s!\n", root_path);
                 return;
             }
@@ -152,7 +164,7 @@ char *zk_get_head(char **node_list, int size) {
     return head;
 }
 
-char **zk_get_data(char *node_name) {
+char *zk_get_data(char *node_name) {
     // Allocate memory for node path
     char *node_path = (char *)malloc(strlen(root_path) + strlen("/") + strlen(node_name) + 1);
 

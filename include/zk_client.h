@@ -18,14 +18,6 @@ struct rtable_pair_t {
 
 #define ZDATALEN 1024 * 1024
 
-static zhandle_t *zh;
-
-static int is_connected;
-
-static char *root_path = "/chain";
-
-static char *watcher_ctx = "ZooKeeper Data Watcher";
-
 // Initialize the zookeeper connection and the connections to the nodes for read and write. Returns a struct with the names of the head and tail nodes and the connections to the nodes for read and write
 struct rtable_pair_t *zk_init(char *address_port);
 
@@ -42,7 +34,7 @@ char *zk_get_head(char **node_list, int size);
 char *zk_get_tail(char **node_list, int size);
 
 // Returns the data of the node with the given name
-char **zk_get_data(char *node_name);
+char *zk_get_data(char *node_name);
 
 // Make connections to the nodes for read and write. Returns 0 if the connections are successful, -1 otherwise
 int make_connections(char *head_name, char *tail_name, struct rtable_pair_t *rtable_pair);

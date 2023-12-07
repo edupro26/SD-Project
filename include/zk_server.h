@@ -20,14 +20,6 @@ Tiago Oliveira - 54979
 
 #define ZDATALEN 1024 * 1024
 
-static zhandle_t *zh;
-
-static int is_connected;
-
-static char *root_path = "/chain";
-
-static char *watcher_ctx = "ZooKeeper Data Watcher";
-
 // Initialize the zookeeper connection
 void zk_init(char *ip, short port, struct table_t *table_pointer, char *address_port);
 

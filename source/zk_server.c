@@ -13,6 +13,12 @@ Tiago Oliveira - 54979
 #include "zk_server.h"
 #include "client_stub-private.h"
 
+static zhandle_t *zh;
+
+static int is_connected;
+
+static char *root_path = "/chain";
+
 typedef struct String_vector zoo_string;
 struct String_vector children;
 
@@ -93,7 +99,8 @@ void zk_init(char *ip, short port, struct table_t *table_pointer, char *address_
         // Save the node name
         this_node = (char *)malloc(strlen(new_path));
         strcpy(this_node, new_path);
-        this_node = strrchr(this_node, '/n'); // Remove the root path from the node name
+        this_node = strrchr(this_node, 'n'); // Remove the root path from the node name
+        printf("This node: %s\n", this_node);
 
         free(new_path);
     }
@@ -108,7 +115,7 @@ void zk_init(char *ip, short port, struct table_t *table_pointer, char *address_
     {
 
 
-        if (ZOK != zoo_wget_children(zh, root_path, &zk_children_handler, watcher_ctx, children_list))
+        if (ZOK != zoo_wget_children(zh, root_path, &zk_children_handler, NULL, children_list))
         {
             fprintf(stderr, "Error setting watch at %s!\n", root_path);
         }
@@ -152,7 +159,7 @@ void zk_children_handler(zhandle_t *zh, int type, int state, const char *path, v
         if (type == ZOO_CHILD_EVENT)
         {
             /* Get the updated children and reset the watch */
-            if (ZOK != zoo_wget_children(zh, root_path, zk_children_handler, watcher_ctx, children_list))
+            if (ZOK != zoo_wget_children(zh, path, zk_children_handler, watcherCtx, children_list))
             {
                 fprintf(stderr, "Error setting watch at %s!\n", root_path);
             }
@@ -203,6 +210,10 @@ void zk_children_handler(zhandle_t *zh, int type, int state, const char *path, v
 
 void zk_connection_watcher(zhandle_t *zzh, int type, int state, const char *path, void *watcherCtx)
 {
+    (void)zzh;     // Suppress unused parameter warning
+    (void)path;    // Suppress unused parameter warning
+    (void)watcherCtx; // Suppress unused parameter warning
+    
     if (type == ZOO_SESSION_EVENT)
     {
         if (state == ZOO_CONNECTED_STATE)
