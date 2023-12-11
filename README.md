@@ -15,6 +15,22 @@ O diretório do projeto é consituído pelos seguintes subdiretórios:
 
 De forma a eliminar os ficheiros gerados pela compilação, basta correr o comando `make clean` na pasta root do projeto. 
 
+#### Iniciar e parar o ZooKeeper 
+
+- $ zkServer.sh start
+- $ zkServer.sh stop
+
+#### Iniciar Servidor
+
+- $ cd /binary
+- $ ./table_server <port> <n_lists> <zk_ip:port>
+
+#### Conectar Cliente
+
+- $ cd ./binary
+- $ ./table_client <zk_ip:port>
+
+
 ### Desenvolvimento
 
 #### Fase 2
@@ -36,6 +52,10 @@ Para implementar os mutexes, foi criado o modulo `locks` que contêm definida a 
 É incializado uma estrutura locks_t para escritas/leituras na tabela e outra para escritas/leituras nas estatísticas.
 
 Foi ainda implementado uma função extra que termina o servidor ao receber signais do tipo SIGINT. Desta forma, o servidor ao ser terminado via CTRL+C, este termina de forma correta, libertando a memória alocada e fechando o socket. Para conseguir que a memória alocado fosse toda libertada, mesmo quando ainda existem clientes ligados, foi necessário a criação de uma estrutura de nós ligados que contêm o socket de cada cliente conectado e a respectiva thread que está a tratar desse cliente. Quando é feito o pedido para terminar o servidor, é chamada, para cada thread, a função `pthread_cancel` para ordenard a thread a fechar, seguida da função `pthread_join` para esperar que a thread termine. Depois de todas as threads terminarem, é fechado o socket do servidor e libertada a memória alocada. Para isto, não fazemos uso da função `pthread_detach` de forma a podermos esperar que as threads terminem e a memória alocada seja libertada.
+
+### Fase 4
+
+Nesta fase foi implementado o Zookeeper. Desta forma, podemos ter vários servidores ligados, permitindo que numa eventual falha de um servidor, os clientes continuem a poder executar operações. Foram criados os ficheiros `zk_client.h` e `zk_server.h` que descrevem as várias funções que foram implementadas nesta fase do projeto, funções essas que estão presentes nos ficheiros `zk_client.c` e `zk_server.c`.
 
 ### Entrega
 
