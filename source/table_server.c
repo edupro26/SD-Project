@@ -53,7 +53,7 @@ int main(int argc, char **argv) {
     unsigned short port = atoi(argv[1]);
     if (port <= 1023) {
         printf("Invalid port\n");
-        printf("Usage: ./table_server <port> <n_lists>\n");
+        printf("Usage: ./table_server <port> <n_lists> <zk_ip:port>\n");
         return -1;
     }
 
@@ -61,7 +61,7 @@ int main(int argc, char **argv) {
     int n_lists = atoi(argv[2]);
     if (n_lists <= 0) {
         printf("Invalid number of lists\n");
-        printf("Usage: ./table_server <port> <n_lists>\n");
+        printf("Usage: ./table_server <port> <n_lists> <zk_ip:port>\n");
         return -1;
     }
 
