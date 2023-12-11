@@ -15,6 +15,7 @@ Tiago Oliveira - 54979
 #include "network_server.h"
 #include "table_skel.h"
 #include "locks.h"
+#include "zk_server.h"
 
 
 int sockfd;
@@ -27,6 +28,7 @@ void stop_server(int signum) {
     }
 
     table_skel_destroy(table);
+    destroy_zk();
     int cls = network_server_close(sockfd);
 
     if (cls < 0) {

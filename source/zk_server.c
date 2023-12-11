@@ -84,6 +84,7 @@ void zk_init(char *ip, short port, struct table_t *table_pointer, char *address_
         // Node data (IP:port)
         char *data = malloc(ZDATALEN);
         // Put IP and port in data
+        data[0] = '\0';
         strcat(data, ip);
         strcat(data, ":");
         strcat(data, port_str);
@@ -96,10 +97,12 @@ void zk_init(char *ip, short port, struct table_t *table_pointer, char *address_
         }
         fprintf(stderr, "Created a node with the path: %s\n", new_path);
 
-        // Save the node name
-        this_node = (char *)malloc(strlen(new_path));
-        strcpy(this_node, new_path);
-        this_node = strrchr(this_node, 'n'); // Remove the root path from the node name
+        free(data);
+
+        // Put a copy of last bytes of new_path in this_node
+        this_node = malloc(strlen(new_path));
+        this_node = strcpy(this_node, new_path + strlen(root_path) + 1);
+
         printf("This node: %s\n", this_node);
 
         free(new_path);
@@ -350,4 +353,19 @@ char* get_second_highest_id(char** node_list, int node_list_size, char* target_n
     }
     
     return highest_node;
+}
+
+void destroy_zk() {
+    if (rtable != NULL) {
+        rtable_disconnect(rtable);
+    }
+    if (zh != NULL) {
+        zookeeper_close(zh);
+    }
+    if (next_node_data != NULL) {
+        free(next_node_data);
+    }
+    if (this_node != NULL) {
+        free(this_node);
+    }
 }

@@ -39,6 +39,7 @@ char *zk_get_data(char *node_name);
 // Make connections to the nodes for read and write. Returns 0 if the connections are successful, -1 otherwise
 int make_connections(char *head_name, char *tail_name, struct rtable_pair_t *rtable_pair);
 
-
+// Closes zk and frees the memory allocated
+void destroy_zk();
 
 #endif

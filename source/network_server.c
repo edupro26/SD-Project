@@ -200,6 +200,8 @@ int network_main_loop(int listening_socket, struct table_t *table) {
     // Initialize the zookeeper, passing the ip:port and pointer to the table_t
     zk_init(ip, server_port, table_ptr, zk_address);
 
+    free(ip);
+
     printf("Zookeeper initialized\n");
 
     while ((client_socket = accept(listening_socket, (struct sockaddr*)&client_addr, &client_len)) != -1) { // Keep the server running
