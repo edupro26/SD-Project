@@ -188,6 +188,7 @@ int main(int argc, char **argv) {
         else if (strcmp(command_name, "quit") == 0) {
             int cls = rtable_disconnect(rtable->read);
             int cls2 = rtable_disconnect(rtable->write);
+            destroy_zk();
 
             if(cls < 0 || cls2 < 0){
                 perror("Error closing connection to server\n");

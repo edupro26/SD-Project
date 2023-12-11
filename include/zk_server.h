@@ -43,4 +43,6 @@ int next_node_del(char *key);
 
 char* get_second_highest_id(char** node_list, int node_list_size, char* node_name);
 
+void destroy_zk();
+
 #endif

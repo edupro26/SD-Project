@@ -117,6 +117,11 @@ void zk_children_handler(zhandle_t *zh, int type, int state, const char *path, v
                 return;
             }
 
+            if (children_list->count == 0) {
+                fprintf(stderr, "\nNo servers available!\nWait for servers to be available...\n");
+                return;
+            }
+
             // Get head and tail of the list
             char *tail = zk_get_tail(children_list->data, children_list->count);
             char *head = zk_get_head(children_list->data, children_list->count);
@@ -130,8 +135,7 @@ void zk_children_handler(zhandle_t *zh, int type, int state, const char *path, v
             }
 
     
-            //free(tail);
-            //free(head);
+    
 
     }
     }
@@ -238,4 +242,21 @@ int make_connections(char *head_name, char *tail_name, struct rtable_pair_t *rta
     }
 
     return 0;
+}
+
+void destroy_zk() {
+    // Disconnect from servers
+    if (connections->head_name != NULL) {
+        rtable_disconnect(connections->read);
+    }
+
+    if (connections->tail_name != NULL) {
+        rtable_disconnect(connections->write);
+    }
+
+    // Free connections
+    free(connections);
+
+    // Close zookeeper connection
+    zookeeper_close(zh);
 }
