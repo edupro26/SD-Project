@@ -1,5 +1,13 @@
 # Projeto 4 - Sistemas Distribuídos
 
+### Distributed Systems Project
+
+Teacher: António Casimiro Ferreira da Costa
+
+Grade: 20/20
+
+---
+
 Trabalho desenvolvido para a disciplina de Sistemas Distribuídos da Faculdade de Ciências da Universidade de Lisboa.
 
 ## Instruções de utilização
